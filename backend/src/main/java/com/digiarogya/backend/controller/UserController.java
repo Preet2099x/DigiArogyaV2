@@ -2,9 +2,10 @@ package com.digiarogya.backend.controller;
 
 import com.digiarogya.backend.dto.CreateUserRequest;
 import com.digiarogya.backend.dto.UserResponse;
-import com.digiarogya.backend.dto.UserResponse;
 import com.digiarogya.backend.entity.User;
+import com.digiarogya.backend.entity.Role;
 import com.digiarogya.backend.service.UserService;
+
 
 import org.springframework.web.bind.annotation.*;
 //import java.util.Optional;
@@ -22,16 +23,18 @@ public class UserController {
     @PostMapping
     public UserResponse createUser(@RequestBody CreateUserRequest request) {
 
+        Role role = Role.valueOf(request.getRole().toUpperCase());
+
         User user = userService.createUser(
                     request.getEmail(),
                     request.getPassword(),
-                    request.getRole()
+                    role
         );
 
         return new UserResponse(
                 user.getId(),
                 user.getEmail(),
-                user.getRole()
+                user.getRole().name()
         );
     }
 

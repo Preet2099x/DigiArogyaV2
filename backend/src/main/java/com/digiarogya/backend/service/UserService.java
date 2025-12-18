@@ -1,5 +1,6 @@
 package com.digiarogya.backend.service;
 
+import com.digiarogya.backend.entity.Role;
 import com.digiarogya.backend.entity.User;
 import com.digiarogya.backend.repository.UserRepository;
 
@@ -18,7 +19,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User createUser(String email, String password, String role) {
+    public User createUser(String email, String password, Role role) {
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
