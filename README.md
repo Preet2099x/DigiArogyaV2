@@ -1,109 +1,215 @@
-# DigiArogya v2
+# DigiArogya V2 — Backend Control Flow & Architecture
 
-DigiArogya v2 is a full-stack healthcare platform designed to model a real-world digital healthcare ecosystem, enabling secure user onboarding, role-based access, and scalable backend architecture using modern enterprise practices.
+This document describes how data flows through the DigiArogya V2 backend system,
+what each layer is responsible for, and how roles and medical data are handled.
 
----
+The backend follows a strict layered architecture:
 
-## Overview
-
-DigiArogya v2 aims to simulate how healthcare systems operate digitally by separating responsibilities across clearly defined layers. The project focuses on backend correctness, security, and extensibility while being paired with a modern React frontend.
-
-This is **not** a CRUD demo. It is a production-style system built to reflect how backend-heavy applications are structured in real companies.
+Controller → Service → Repository → Database
 
 ---
 
-## Tech Stack
+## 1. Core Layers and Responsibilities
 
-### Backend
-- Java 21
-- Spring Boot
-- Spring Web
-- Spring Data JPA (Hibernate)
-- Spring Security (BCrypt password hashing)
-- PostgreSQL
-- Maven
+### Controller
+- Handles HTTP requests and responses
+- Accepts request DTOs
+- Returns response DTOs
+- Does NOT contain business logic
+- Does NOT access the database
 
-### Frontend
-- React
-- Tailwind CSS
-- REST API integration
+### Service
+- Contains all business logic
+- Enforces rules and permissions
+- Coordinates between controllers and repositories
+- Never knows about HTTP or JSON
 
----
+### Repository
+- Only layer that talks to the database
+- Uses Spring Data JPA
+- No business rules
 
-## Current Features
+### Entity
+- Represents database tables
+- Used internally only
+- Never exposed directly via APIs
 
-### User Account System
-- User account creation via REST API
-- Secure password hashing using BCrypt
-- Email uniqueness enforced at database level
-- Role assignment at account creation
-
-### Role Management
-- Roles are implemented as a **strict enum**
-- Supported roles include:
-  - PATIENT
-  - DOCTOR
-  - (extendable to HOSPITAL, LAB, PHARMACY, INSURANCE, ADMIN)
-- Roles are persisted as readable strings in the database
-
-### Architecture
-- Layered architecture:
-  - Controller (HTTP boundary)
-  - Service (business logic)
-  - Repository (database access)
-  - Entity (database schema)
-  - DTOs (request/response contracts)
-- DTOs isolate external API contracts from internal database models
-- Entities are never exposed directly to clients
+### DTO (Data Transfer Object)
+- Defines API input/output structure
+- Used only at controller boundary
+- Jackson converts JSON ↔ DTO
 
 ---
 
-## Data Flow (High Level)
+## 2. Account Creation Flow (Implemented)
 
-1. Client sends JSON request to backend
-2. Spring converts JSON into request DTO
-3. Controller validates and forwards data to service layer
-4. Service applies business logic and security rules
-5. Repository persists entity to PostgreSQL
-6. Controller returns a response DTO
-7. Spring serializes response DTO into JSON
+### Endpoint
+POST /api/users
 
----
+### Flow
+Client  
+→ HTTP request (JSON)  
+→ Jackson  
+→ CreateUserRequest DTO  
+→ UserController  
+→ UserService  
+→ UserRepository  
+→ PostgreSQL  
 
-## Security Considerations
+### Details
+- Role is sent as a string in JSON
+- Jackson converts role to Role enum (case-insensitive)
+- Invalid roles fail before controller execution (400)
+- Service hashes password using BCrypt
+- User is persisted with role stored as STRING
 
-- Passwords are never stored or returned in plain text
-- BCrypt hashing is enforced at service layer
-- Entities are not exposed directly via API
-- Security configuration is modular and extensible for future authentication (JWT, OAuth, etc.)
-
----
-
-## Frontend (Planned & In Progress)
-
-- React-based UI for account creation and authentication
-- Role-aware UI rendering
-- API-driven data flow
-- Separation of UI concerns from backend logic
+### Key Principle
+Closed domain concepts (roles) are validated at the API boundary.
 
 ---
 
-## Status
+## 3. Login Flow (Implemented, No JWT)
 
-Active development  
-Backend core completed  
-Frontend integration in progress  
+### Endpoint
+POST /api/users/login
+
+### Flow
+Client  
+→ LoginRequest DTO  
+→ UserController  
+→ UserService  
+→ UserRepository  
+→ BCrypt password verification  
+
+### Details
+- User is fetched by email
+- Password is verified using passwordEncoder.matches
+- Same error for invalid email or password
+- No JWT, sessions, or security context yet
+
+### Purpose
+Identity verification only.
 
 ---
 
-## Future Roadmap
+## 4. Role Handling (Completed)
 
-- Authentication & login flow
-- JWT-based authorization
-- Role-based access control
-- Domain expansion (Patient records, Doctors, Hospitals)
-- Audit logging
-- Deployment & containerization
+### Role Enum
+- Central definition of all allowed roles
+- Case-insensitive JSON deserialization
+- Consistent serialization in responses
+
+### Invalid Role Handling
+- Invalid roles fail during JSON → DTO conversion
+- Global exception handler returns structured 400 response
+- Controller and service are never reached
+
+### Principle
+Validate early, fail fast, fail clearly.
 
 ---
 
+## 5. Medical Records — Conceptual Design
+
+### Core Entities (Conceptual)
+
+User  
+- id  
+- role (PATIENT, DOCTOR, etc.)
+
+PatientRecord  
+- id  
+- patientId (User with PATIENT role)  
+- createdBy (Doctor / Hospital / Lab)  
+- medicalData  
+- reports  
+- timestamps  
+
+---
+
+## 6. Creating a Medical Record (Future)
+
+### Who Can Create
+- DOCTOR
+- HOSPITAL
+- LAB (restricted)
+
+### Flow
+Authenticated provider  
+→ POST /api/records  
+→ Controller  
+→ Service  
+→ Authorization checks  
+→ Repository  
+→ Database  
+
+### Service-Level Checks
+- Patient exists
+- Target user has PATIENT role
+- Requester role is allowed
+- Requester is authorized
+
+All authorization logic lives in the service layer.
+
+---
+
+## 7. Patient Viewing Their Own Records (Future)
+
+### Flow
+Patient  
+→ GET /api/records/me  
+→ Controller  
+→ Service  
+→ Repository  
+
+### Rule
+Patient never supplies patientId.
+Backend derives identity from authentication context (later).
+
+---
+
+## 8. Doctor Viewing Patient Records (Future)
+
+### Flow
+Doctor  
+→ GET /api/records/{patientId}  
+→ Controller  
+→ Service  
+→ Authorization checks  
+→ Repository  
+
+### Rules
+- Doctor role required
+- Access must be explicit and auditable
+- No unrestricted access
+
+---
+
+## 9. Role Usage Summary
+
+Role is used only in the following places:
+
+- Enum: defines allowed roles
+- Service: authorization decisions
+- Security layer: request filtering (future)
+
+Role is never trusted from client input after login.
+
+---
+
+## 10. High-Level Mental Model
+
+HTTP  
+→ DTO  
+→ Service (rules & authorization)  
+→ Repository  
+→ Database  
+
+### Guiding Principle
+Validate at the edge. Enforce in the service. Persist cleanly.
+
+---
+
+## 11. One-Line Summary
+
+DigiArogya V2 is a role-driven healthcare backend where identity is verified via login, and all access to medical data is enforced at the service layer based on role and ownership.
