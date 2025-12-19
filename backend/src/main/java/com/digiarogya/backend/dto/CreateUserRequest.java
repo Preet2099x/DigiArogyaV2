@@ -1,10 +1,12 @@
 package com.digiarogya.backend.dto;
 
+import com.digiarogya.backend.entity.Role;
+
 public class CreateUserRequest {
 
     private String email;
     private String password;
-    private String role;
+    private Role role;
 
     public String getEmail() {
         return email;
@@ -22,11 +24,11 @@ public class CreateUserRequest {
         this.password = password;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 }
