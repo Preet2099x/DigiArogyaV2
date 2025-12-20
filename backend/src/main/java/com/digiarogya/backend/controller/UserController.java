@@ -5,11 +5,11 @@ import com.digiarogya.backend.dto.UserResponse;
 import com.digiarogya.backend.entity.User;
 import com.digiarogya.backend.service.UserService;
 import com.digiarogya.backend.dto.LoginRequest;
-
-
+import com.digiarogya.backend.security.JwtUtil;
 
 import org.springframework.web.bind.annotation.*;
-//import java.util.Optional;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -21,13 +21,16 @@ public class UserController {
         this.userService = userService;
     }
 
+    // =========================
+    // CREATE USER (unchanged)
+    // =========================
     @PostMapping
     public UserResponse createUser(@RequestBody CreateUserRequest request) {
 
         User user = userService.createUser(
-                    request.getEmail(),
-                    request.getPassword(),
-                    request.getRole()
+                request.getEmail(),
+                request.getPassword(),
+                request.getRole()
         );
 
         return new UserResponse(
@@ -37,25 +40,25 @@ public class UserController {
         );
     }
 
+    // =========================
+    // LOGIN (JWT ADDED)
+    // =========================
+
     @PostMapping("/login")
-    public UserResponse login(@RequestBody LoginRequest request) {
+    public Map<String, Object> login(@RequestBody LoginRequest request) {
+
 
         User user = userService.login(
                 request.getEmail(),
                 request.getPassword()
         );
 
-        return new UserResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getRole().name()
+        String token = JwtUtil.generateToken(user);
+
+        return Map.of(
+                "token", token,
+                "userId", user.getId(),
+                "role", user.getRole().name()
         );
     }
-
-
-//    @GetMapping
-//    public User getUserByEmail(@RequestParam String email) {
-//        Optional<User> user = userService.getUserByEmail(email);
-//        return user.orElse(null);
-//    }
 }
