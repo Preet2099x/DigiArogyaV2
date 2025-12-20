@@ -4,6 +4,8 @@ import com.digiarogya.backend.dto.CreateUserRequest;
 import com.digiarogya.backend.dto.UserResponse;
 import com.digiarogya.backend.entity.User;
 import com.digiarogya.backend.service.UserService;
+import com.digiarogya.backend.dto.LoginRequest;
+
 
 
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +36,22 @@ public class UserController {
                 user.getRole().name()
         );
     }
+
+    @PostMapping("/login")
+    public UserResponse login(@RequestBody LoginRequest request) {
+
+        User user = userService.login(
+                request.getEmail(),
+                request.getPassword()
+        );
+
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name()
+        );
+    }
+
 
 //    @GetMapping
 //    public User getUserByEmail(@RequestParam String email) {
