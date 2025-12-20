@@ -1,6 +1,7 @@
 package com.digiarogya.backend.exception;
 
 import com.digiarogya.backend.entity.Role;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -29,4 +30,17 @@ public class GlobalExceptionHandler {
                         "allowedRoles", allowedRoles
                 ));
     }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidCredentials(
+            InvalidCredentialsException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                        "error", "INVALID_CREDENTIALS",
+                        "message", "Email or password is incorrect"
+                ));
+    }
+
 }

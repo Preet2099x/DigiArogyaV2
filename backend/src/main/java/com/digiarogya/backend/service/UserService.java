@@ -3,6 +3,8 @@ package com.digiarogya.backend.service;
 import com.digiarogya.backend.entity.Role;
 import com.digiarogya.backend.entity.User;
 import com.digiarogya.backend.repository.UserRepository;
+import com.digiarogya.backend.exception.InvalidCredentialsException;
+
 
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,10 +33,10 @@ public class UserService {
     public User login(String email, String password) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(InvalidCredentialsException::new);
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException();
         }
 
         return user;
