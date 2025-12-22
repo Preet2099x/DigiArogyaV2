@@ -1,6 +1,6 @@
 package com.digiarogya.backend.controller;
 
-import com.digiarogya.backend.entity.PatientRecord;
+import com.digiarogya.backend.dto.PatientRecordResponse;
 import com.digiarogya.backend.service.RecordService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,7 @@ public class RecordController {
     }
 
     @GetMapping("/me")
-    public List<PatientRecord> getMyRecords(HttpServletRequest request) {
+    public List<PatientRecordResponse> getMyRecords(HttpServletRequest request) {
 
         Long userId = Long.valueOf(
                 (String) request.getAttribute("userId")
