@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/records")
 public class RecordController {
@@ -25,8 +24,10 @@ public class RecordController {
 
         Long userId = Long.valueOf(
                 (String) request.getAttribute("userId")
-        ); // identity from JWT
+        );
 
-        return recordService.getRecordsForPatient(userId);
+        String role = (String) request.getAttribute("role");
+
+        return recordService.getRecordsForPatient(userId, role);
     }
 }

@@ -1,6 +1,7 @@
 package com.digiarogya.backend.service;
 
 import com.digiarogya.backend.entity.PatientRecord;
+import com.digiarogya.backend.exception.AccessDeniedException;
 import com.digiarogya.backend.repository.PatientRecordRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +16,12 @@ public class RecordService {
         this.recordRepository = recordRepository;
     }
 
-    // fetch records owned by a patient
-    public List<PatientRecord> getRecordsForPatient(Long patientId) {
+    public List<PatientRecord> getRecordsForPatient(Long patientId, String role) {
+
+        if (!"PATIENT".equals(role)) {
+            throw new AccessDeniedException("Only patients can access their records");
+        }
+
         return recordRepository.findByPatientId(patientId);
     }
 }
