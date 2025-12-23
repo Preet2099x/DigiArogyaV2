@@ -55,5 +55,18 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(AccessRequiredException.class)
+    public ResponseEntity<Map<String, String>> handleAccessRequired(
+            AccessRequiredException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(Map.of(
+                        "error", "ACCESS_REQUIRED",
+                        "message", ex.getMessage()
+                ));
+    }
+
+
 
 }
