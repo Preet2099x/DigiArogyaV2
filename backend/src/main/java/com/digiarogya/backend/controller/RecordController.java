@@ -1,7 +1,9 @@
 package com.digiarogya.backend.controller;
 
+import com.digiarogya.backend.dto.GrantAccessRequest;
 import com.digiarogya.backend.dto.PatientRecordResponse;
 import com.digiarogya.backend.service.RecordService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,26 +19,47 @@ public class RecordController {
         this.recordService = recordService;
     }
 
-    // PATIENT
+    // =========================
+    // PATIENT: VIEW OWN RECORDS
+    // =========================
     @GetMapping("/me")
     public List<PatientRecordResponse> getMyRecords(HttpServletRequest request) {
 
-        Long userId = Long.valueOf((String) request.getAttribute("userId"));
+        Long patientId = Long.valueOf((String) request.getAttribute("userId"));
         String role = (String) request.getAttribute("role");
 
-        return recordService.getRecordsForPatient(userId, role);
+        return recordService.getMyRecords(patientId, role);
     }
 
-    // DOCTOR (ACCESS-GATED)
+    // =========================
+    // DOCTOR: VIEW PATIENT RECORDS
+    // =========================
     @GetMapping("/{patientId}")
     public List<PatientRecordResponse> getPatientRecords(
-            @PathVariable Long patientId,
-            HttpServletRequest request
+            HttpServletRequest request,
+            @PathVariable Long patientId
     ) {
-
         Long doctorId = Long.valueOf((String) request.getAttribute("userId"));
         String role = (String) request.getAttribute("role");
 
-        return recordService.getRecordsForDoctor(doctorId, patientId, role);
+        return recordService.getPatientRecordsForDoctor(
+                doctorId,
+                patientId,
+                role
+        );
+    }
+
+    // =========================
+    // PATIENT: GRANT ACCESS
+    // =========================
+    @PostMapping("/access")
+    public void grantAccess(
+            HttpServletRequest request,
+            @RequestBody GrantAccessRequest body
+    ) {
+        Long patientId = Long.valueOf((String) request.getAttribute("userId"));
+        String role = (String) request.getAttribute("role");
+
+        recordService.grantAccess(patientId, role, body.getDoctorEmail());
     }
 }

@@ -1,44 +1,58 @@
 package com.digiarogya.backend.service;
 
 import com.digiarogya.backend.dto.PatientRecordResponse;
+import com.digiarogya.backend.entity.Access;
 import com.digiarogya.backend.entity.PatientRecord;
+import com.digiarogya.backend.entity.User;
 import com.digiarogya.backend.exception.AccessDeniedException;
 import com.digiarogya.backend.exception.AccessRequiredException;
 import com.digiarogya.backend.repository.AccessRepository;
 import com.digiarogya.backend.repository.PatientRecordRepository;
+import com.digiarogya.backend.repository.UserRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RecordService {
 
-    private final PatientRecordRepository recordRepository;
+    private final PatientRecordRepository patientRecordRepository;
     private final AccessRepository accessRepository;
+    private final UserRepository userRepository;
 
     public RecordService(
-            PatientRecordRepository recordRepository,
-            AccessRepository accessRepository
+            PatientRecordRepository patientRecordRepository,
+            AccessRepository accessRepository,
+            UserRepository userRepository
     ) {
-        this.recordRepository = recordRepository;
+        this.patientRecordRepository = patientRecordRepository;
         this.accessRepository = accessRepository;
+        this.userRepository = userRepository;
     }
 
-    // PATIENT → own records
-    public List<PatientRecordResponse> getRecordsForPatient(Long patientId, String role) {
+    // =========================
+    // PATIENT: VIEW OWN RECORDS
+    // =========================
+    public List<PatientRecordResponse> getMyRecords(Long patientId, String role) {
 
         if (!"PATIENT".equals(role)) {
-            throw new AccessDeniedException("Only patients can access this endpoint");
+            throw new AccessDeniedException("Only patients can view their records");
         }
 
-        return recordRepository.findByPatientId(patientId)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        List<PatientRecord> records =
+                patientRecordRepository.findByPatientId(patientId);
+
+        return records.stream()
+                .map(PatientRecordResponse::from)
+                .collect(Collectors.toList());
     }
 
-    // DOCTOR → patient records (ACCESS-GATED)
-    public List<PatientRecordResponse> getRecordsForDoctor(
+    // =========================
+    // DOCTOR: VIEW PATIENT RECORDS
+    // =========================
+    public List<PatientRecordResponse> getPatientRecordsForDoctor(
             Long doctorId,
             Long patientId,
             String role
@@ -48,20 +62,49 @@ public class RecordService {
             throw new AccessDeniedException("Only doctors can access patient records");
         }
 
-        if (!accessRepository.hasActiveAccess(patientId, doctorId)) {
+        boolean hasAccess =
+                accessRepository.existsByPatientIdAndDoctorId(patientId, doctorId);
+
+        if (!hasAccess) {
             throw new AccessRequiredException("Active access required from patient");
         }
 
-        return recordRepository.findByPatientId(patientId)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        List<PatientRecord> records =
+                patientRecordRepository.findByPatientId(patientId);
+
+        return records.stream()
+                .map(PatientRecordResponse::from)
+                .collect(Collectors.toList());
     }
 
-    private PatientRecordResponse toResponse(PatientRecord record) {
-        return new PatientRecordResponse(
-                record.getId(),
-                record.getDiagnosis()
-        );
+    // =========================
+    // PATIENT: GRANT ACCESS
+    // =========================
+    public void grantAccess(Long patientId, String role, String doctorEmail) {
+
+        if (!"PATIENT".equals(role)) {
+            throw new AccessDeniedException("Only patients can grant access");
+        }
+
+        User doctor = userRepository.findByEmail(doctorEmail)
+                .orElseThrow(() ->
+                        new AccessDeniedException("Doctor not found"));
+
+        if (!"DOCTOR".equals(doctor.getRole().name())) {
+            throw new AccessDeniedException("User is not a doctor");
+        }
+
+        boolean alreadyExists =
+                accessRepository.existsByPatientIdAndDoctorId(patientId, doctor.getId());
+
+        if (alreadyExists) {
+            return; // idempotent
+        }
+
+        Access access = new Access();
+        access.setPatientId(patientId);
+        access.setDoctorId(doctor.getId());
+
+        accessRepository.save(access);
     }
 }

@@ -1,12 +1,13 @@
 package com.digiarogya.backend.entity;
 
 import jakarta.persistence.*;
-import java.time.Instant;
 
 @Entity
 @Table(
         name = "access",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"patient_id", "doctor_id"})
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"patient_id", "doctor_id"})
+        }
 )
 public class Access {
 
@@ -20,30 +21,23 @@ public class Access {
     @Column(name = "doctor_id", nullable = false)
     private Long doctorId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Status status;
-
-    @Column(name = "granted_at")
-    private Instant grantedAt;
-
-    @Column(name = "expires_at")
-    private Instant expiresAt;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt = Instant.now();
-
-    public enum Status {
-        PENDING,
-        ACTIVE,
-        REVOKED,
-        EXPIRED
+    public Long getId() {
+        return id;
     }
 
-    public Long getId() { return id; }
-    public Long getPatientId() { return patientId; }
-    public Long getDoctorId() { return doctorId; }
-    public Status getStatus() { return status; }
-    public Instant getGrantedAt() { return grantedAt; }
-    public Instant getExpiresAt() { return expiresAt; }
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public Long getDoctorId() {
+        return doctorId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public void setDoctorId(Long doctorId) {
+        this.doctorId = doctorId;
+    }
 }
