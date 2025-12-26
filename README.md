@@ -1,215 +1,133 @@
-# DigiArogya V2 — Backend Control Flow & Architecture
+# DigiArogya V2 🏥
 
-This document describes how data flows through the DigiArogya V2 backend system,
-what each layer is responsible for, and how roles and medical data are handled.
+DigiArogya V2 is a digital healthcare application for managing patient medical records with strict ownership, controlled access, and security-first design.
 
-The backend follows a strict layered architecture:
+The system is intended for real-world use by patients and healthcare providers, where medical data is sensitive, access must be deliberate, and trust cannot be implicit.
 
-Controller → Service → Repository → Database
-
----
-
-## 1. Core Layers and Responsibilities
-
-### Controller
-- Handles HTTP requests and responses
-- Accepts request DTOs
-- Returns response DTOs
-- Does NOT contain business logic
-- Does NOT access the database
-
-### Service
-- Contains all business logic
-- Enforces rules and permissions
-- Coordinates between controllers and repositories
-- Never knows about HTTP or JSON
-
-### Repository
-- Only layer that talks to the database
-- Uses Spring Data JPA
-- No business rules
-
-### Entity
-- Represents database tables
-- Used internally only
-- Never exposed directly via APIs
-
-### DTO (Data Transfer Object)
-- Defines API input/output structure
-- Used only at controller boundary
-- Jackson converts JSON ↔ DTO
+At the core of DigiArogya is a consent-driven model: patient data is private by default and shared only when explicitly approved.
 
 ---
 
-## 2. Account Creation Flow (Implemented)
+## 📌 Product Overview
 
-### Endpoint
-POST /api/users
+DigiArogya enables patients to securely store their medical records and control how those records are shared with doctors and other healthcare providers.
 
-### Flow
-Client  
-→ HTTP request (JSON)  
-→ Jackson  
-→ CreateUserRequest DTO  
-→ UserController  
-→ UserService  
-→ UserRepository  
-→ PostgreSQL  
+Instead of relying on broad role-based access, the platform separates **data ownership** from **data access**. Patients remain the owners of their data, while providers operate only within permissions granted by patients.
 
-### Details
-- Role is sent as a string in JSON
-- Jackson converts role to Role enum (case-insensitive)
-- Invalid roles fail before controller execution (400)
-- Service hashes password using BCrypt
-- User is persisted with role stored as STRING
-
-### Key Principle
-Closed domain concepts (roles) are validated at the API boundary.
+The application is being developed as a full-stack product, with the backend implemented first and a frontend planned as the primary user interface.
 
 ---
 
-## 3. Login Flow (Implemented, No JWT)
+## 👤 Accounts and Authentication
 
-### Endpoint
-POST /api/users/login
+Each user creates an account using:
+- 📧 Email
+- 🔐 Password
+- 🎭 A single role (PATIENT, DOCTOR, etc.)
 
-### Flow
-Client  
-→ LoginRequest DTO  
-→ UserController  
-→ UserService  
-→ UserRepository  
-→ BCrypt password verification  
+An account represents one operational role. Permissions are not inferred beyond that role.
 
-### Details
-- User is fetched by email
-- Password is verified using passwordEncoder.matches
-- Same error for invalid email or password
-- No JWT, sessions, or security context yet
-
-### Purpose
-Identity verification only.
+Users authenticate using email and password. After successful login, the backend issues a JWT token representing the authenticated user and their role. All protected API requests require this token.
 
 ---
 
-## 4. Role Handling (Completed)
+## 🧑‍⚕️ Data Ownership and Access Control
 
-### Role Enum
-- Central definition of all allowed roles
-- Case-insensitive JSON deserialization
-- Consistent serialization in responses
+### 🧍 Patient Ownership
 
-### Invalid Role Handling
-- Invalid roles fail during JSON → DTO conversion
-- Global exception handler returns structured 400 response
-- Controller and service are never reached
+All medical records belong to the patient.
 
-### Principle
-Validate early, fail fast, fail clearly.
+Patients can:
+- View their complete medical history
+- Grant access to specific doctors
+- Revoke access at any time
+
+Patients never supply their own identifiers when accessing records. Ownership is derived from authentication to prevent misuse or data leakage.
 
 ---
 
-## 5. Medical Records — Conceptual Design
+### 🩺 Doctor Access
 
-### Core Entities (Conceptual)
+Doctors cannot access patient records by default.
 
-User  
-- id  
-- role (PATIENT, DOCTOR, etc.)
+A doctor may view a patient’s records only if:
+- The patient has explicitly granted access
+- The request is authenticated
+- A valid access grant exists
 
-PatientRecord  
-- id  
-- patientId (User with PATIENT role)  
-- createdBy (Doctor / Hospital / Lab)  
-- medicalData  
-- reports  
-- timestamps  
+Knowing or guessing a patient identifier does not provide access.
 
 ---
 
-## 6. Creating a Medical Record (Future)
+## 📁 Medical Records
 
-### Who Can Create
-- DOCTOR
-- HOSPITAL
-- LAB (restricted)
+Medical records are stored using a semi-structured model to balance flexibility and consistency.
 
-### Flow
-Authenticated provider  
-→ POST /api/records  
-→ Controller  
-→ Service  
-→ Authorization checks  
-→ Repository  
-→ Database  
+Each record includes:
+- 🏷️ Record type (e.g. diagnosis, prescription, lab report)
+- 📝 Title or short description
+- 📄 Record content (text or structured data)
+- 👨‍⚕️ Information about the creator
+- 🕒 Timestamps
 
-### Service-Level Checks
-- Patient exists
-- Target user has PATIENT role
-- Requester role is allowed
-- Requester is authorized
-
-All authorization logic lives in the service layer.
+This approach supports future validation, filtering, and system evolution without frequent schema changes.
 
 ---
 
-## 7. Patient Viewing Their Own Records (Future)
+## 🔒 Security Model
 
-### Flow
-Patient  
-→ GET /api/records/me  
-→ Controller  
-→ Service  
-→ Repository  
+- 🔑 JWT-based authentication
+- 🧠 Authorization enforced in the service layer
+- 🎭 Roles trusted only from server-issued tokens
+- 🚫 Controllers contain no business logic
+- 🛑 Access denied by default unless explicitly allowed
 
-### Rule
-Patient never supplies patientId.
-Backend derives identity from authentication context (later).
+All access decisions are explicit and auditable.
 
 ---
 
-## 8. Doctor Viewing Patient Records (Future)
+## 🛠️ Technology Stack
 
-### Flow
-Doctor  
-→ GET /api/records/{patientId}  
-→ Controller  
-→ Service  
-→ Authorization checks  
-→ Repository  
+### Backend
+- ☕ Java 21
+- 🌱 Spring Boot
+- 🌐 Spring Web
+- 🗄️ Spring Data JPA
+- 🔐 Spring Security (JWT)
+- 🐘 PostgreSQL
+- 📦 Maven
 
-### Rules
-- Doctor role required
-- Access must be explicit and auditable
-- No unrestricted access
-
----
-
-## 9. Role Usage Summary
-
-Role is used only in the following places:
-
-- Enum: defines allowed roles
-- Service: authorization decisions
-- Security layer: request filtering (future)
-
-Role is never trusted from client input after login.
+### Frontend
+- ⚛️ React (planned)
+- 🔑 Token-based API communication
 
 ---
 
-## 10. High-Level Mental Model
+## ✅ Current Functionality
 
-HTTP  
-→ DTO  
-→ Service (rules & authorization)  
-→ Repository  
-→ Database  
-
-### Guiding Principle
-Validate at the edge. Enforce in the service. Persist cleanly.
+- User registration with strict role validation
+- Secure login with password hashing
+- JWT authentication
+- Role-aware authorization
+- Patient-only access to own records
+- Doctor access gated by patient approval
+- Structured error handling
+- Layered backend architecture
 
 ---
 
-## 11. One-Line Summary
+## 🚀 Planned Work
 
-DigiArogya V2 is a role-driven healthcare backend where identity is verified via login, and all access to medical data is enforced at the service layer based on role and ownership.
+- Doctors creating medical records
+- Revoking and expiring access grants
+- Patient dashboards
+- Audit logging
+- Record filtering and categorization
+- File and report uploads
+- Complete frontend workflows
+
+---
+
+## 🎯 Scope
+
+DigiArogya V2 is being built as a real healthcare application, with a backend designed to support privacy, controlled data sharing, and long-term product growth.
