@@ -9,6 +9,8 @@ import com.digiarogya.backend.exception.AccessRequiredException;
 import com.digiarogya.backend.repository.AccessRepository;
 import com.digiarogya.backend.repository.PatientRecordRepository;
 import com.digiarogya.backend.repository.UserRepository;
+import com.digiarogya.backend.dto.CreateRecordRequest;
+
 
 import org.springframework.stereotype.Service;
 
@@ -107,4 +109,32 @@ public class RecordService {
 
         accessRepository.save(access);
     }
+
+    public void addRecord(
+            Long doctorId,
+            Long patientId,
+            String role,
+            CreateRecordRequest request
+    ) {
+        if (!"DOCTOR".equals(role)) {
+            throw new AccessDeniedException("Only doctors can add records");
+        }
+
+        boolean hasAccess =
+                accessRepository.existsByPatientIdAndDoctorId(patientId, doctorId);
+
+        if (!hasAccess) {
+            throw new AccessRequiredException("Access required to add record");
+        }
+
+        PatientRecord record = new PatientRecord();
+        record.setPatientId(patientId);
+        record.setCreatedByDoctorId(doctorId);
+        record.setType(request.getType());
+        record.setTitle(request.getTitle());
+        record.setContent(request.getContent());
+
+        patientRecordRepository.save(record);
+    }
+
 }

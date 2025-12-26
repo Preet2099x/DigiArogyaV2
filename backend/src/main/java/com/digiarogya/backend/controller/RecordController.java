@@ -3,6 +3,8 @@ package com.digiarogya.backend.controller;
 import com.digiarogya.backend.dto.GrantAccessRequest;
 import com.digiarogya.backend.dto.PatientRecordResponse;
 import com.digiarogya.backend.service.RecordService;
+import com.digiarogya.backend.dto.CreateRecordRequest;
+
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
@@ -62,4 +64,22 @@ public class RecordController {
 
         recordService.grantAccess(patientId, role, body.getDoctorEmail());
     }
+
+    @PostMapping("/{patientId}")
+    public void addRecord(
+            HttpServletRequest request,
+            @PathVariable Long patientId,
+            @RequestBody CreateRecordRequest body
+    ) {
+        Long doctorId = Long.valueOf((String) request.getAttribute("userId"));
+        String role = (String) request.getAttribute("role");
+
+        recordService.addRecord(
+                doctorId,
+                patientId,
+                role,
+                body
+        );
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.digiarogya.backend.entity;
 
 import jakarta.persistence.*;
+import java.time.Instant;
 
 @Entity
 @Table(name = "patient_records")
@@ -10,33 +11,31 @@ public class PatientRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // owner of the record (PATIENT userId)
-    @Column(nullable = false)
     private Long patientId;
 
-    // simple medical data for now
-    @Column(nullable = false)
-    private String diagnosis;
+    private Long createdByDoctorId;
 
-    // who created it (doctor/hospital later)
-    @Column(nullable = false)
-    private Long createdBy;
+    @Enumerated(EnumType.STRING)
+    private RecordType type;
 
-    // ---- getters only (no setters yet) ----
+    private String title;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
-    public Long getPatientId() {
-        return patientId;
-    }
+    private Instant createdAt = Instant.now();
 
-    public String getDiagnosis() {
-        return diagnosis;
-    }
+    public Long getId() { return id; }
+    public Long getPatientId() { return patientId; }
+    public Long getCreatedByDoctorId() { return createdByDoctorId; }
+    public RecordType getType() { return type; }
+    public String getTitle() { return title; }
+    public String getContent() { return content; }
+    public Instant getCreatedAt() { return createdAt; }
 
-    public Long getCreatedBy() {
-        return createdBy;
-    }
+    public void setPatientId(Long patientId) { this.patientId = patientId; }
+    public void setCreatedByDoctorId(Long createdByDoctorId) { this.createdByDoctorId = createdByDoctorId; }
+    public void setType(RecordType type) { this.type = type; }
+    public void setTitle(String title) { this.title = title; }
+    public void setContent(String content) { this.content = content; }
 }
