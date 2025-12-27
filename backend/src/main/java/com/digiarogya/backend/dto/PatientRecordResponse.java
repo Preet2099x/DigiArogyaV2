@@ -11,6 +11,7 @@ public class PatientRecordResponse {
     private RecordType type;
     private String title;
     private String content;
+    private String diagnosis;
     private Instant createdAt;
     private Long createdByDoctorId;
 
@@ -20,6 +21,7 @@ public class PatientRecordResponse {
         dto.type = record.getType();
         dto.title = record.getTitle();
         dto.content = record.getContent();
+        dto.diagnosis = record.getDiagnosis();
         dto.createdAt = record.getCreatedAt();
         dto.createdByDoctorId = record.getCreatedByDoctorId();
         return dto;
@@ -29,6 +31,9 @@ public class PatientRecordResponse {
     public RecordType getType() { return type; }
     public String getTitle() { return title; }
     public String getContent() { return content; }
+    public String getDiagnosis() {
+        return diagnosis;
+    }
     public Instant getCreatedAt() { return createdAt; }
     public Long getCreatedByDoctorId() { return createdByDoctorId; }
 }

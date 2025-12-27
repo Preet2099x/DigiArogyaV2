@@ -23,6 +23,9 @@ public class PatientRecord {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column(nullable = false)
+    private String diagnosis;
+
     private Instant createdAt = Instant.now();
 
     public Long getId() { return id; }
@@ -31,6 +34,7 @@ public class PatientRecord {
     public RecordType getType() { return type; }
     public String getTitle() { return title; }
     public String getContent() { return content; }
+    public String getDiagnosis() { return diagnosis; }
     public Instant getCreatedAt() { return createdAt; }
 
     public void setPatientId(Long patientId) { this.patientId = patientId; }
@@ -38,4 +42,7 @@ public class PatientRecord {
     public void setType(RecordType type) { this.type = type; }
     public void setTitle(String title) { this.title = title; }
     public void setContent(String content) { this.content = content; }
+    public void setDiagnosis(String diagnosis) {
+        this.diagnosis = diagnosis;
+    }
 }

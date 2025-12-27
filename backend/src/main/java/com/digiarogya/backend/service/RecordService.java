@@ -133,6 +133,7 @@ public class RecordService {
         record.setType(request.getType());
         record.setTitle(request.getTitle());
         record.setContent(request.getContent());
+        record.setDiagnosis(request.getDiagnosis());
 
         patientRecordRepository.save(record);
     }
