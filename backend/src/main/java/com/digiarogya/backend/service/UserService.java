@@ -4,6 +4,7 @@ import com.digiarogya.backend.entity.Role;
 import com.digiarogya.backend.entity.User;
 import com.digiarogya.backend.repository.UserRepository;
 import com.digiarogya.backend.exception.InvalidCredentialsException;
+import com.digiarogya.backend.exception.DuplicateEmailException;
 
 
 import org.springframework.stereotype.Service;
@@ -22,6 +23,11 @@ public class UserService {
     }
 
     public User createUser(String email, String password, Role role) {
+        // Check if user with email already exists
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new DuplicateEmailException(email);
+        }
+        
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
