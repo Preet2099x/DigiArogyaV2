@@ -13,7 +13,9 @@ public class PatientRecord {
 
     private Long patientId;
 
-    private Long createdByDoctorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_doctor_id")
+    private User createdByDoctor;
 
     @Enumerated(EnumType.STRING)
     private RecordType type;
@@ -30,7 +32,9 @@ public class PatientRecord {
 
     public Long getId() { return id; }
     public Long getPatientId() { return patientId; }
-    public Long getCreatedByDoctorId() { return createdByDoctorId; }
+    public User getCreatedByDoctor() { return createdByDoctor; }
+    public Long getCreatedByDoctorId() { return createdByDoctor != null ? createdByDoctor.getId() : null; }
+    public String getCreatedByDoctorName() { return createdByDoctor != null ? createdByDoctor.getName() : null; }
     public RecordType getType() { return type; }
     public String getTitle() { return title; }
     public String getContent() { return content; }
@@ -38,7 +42,7 @@ public class PatientRecord {
     public Instant getCreatedAt() { return createdAt; }
 
     public void setPatientId(Long patientId) { this.patientId = patientId; }
-    public void setCreatedByDoctorId(Long createdByDoctorId) { this.createdByDoctorId = createdByDoctorId; }
+    public void setCreatedByDoctor(User createdByDoctor) { this.createdByDoctor = createdByDoctor; }
     public void setType(RecordType type) { this.type = type; }
     public void setTitle(String title) { this.title = title; }
     public void setContent(String content) { this.content = content; }

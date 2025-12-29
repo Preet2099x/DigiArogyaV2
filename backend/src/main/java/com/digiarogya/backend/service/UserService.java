@@ -22,13 +22,14 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User createUser(String email, String password, Role role) {
+    public User createUser(String name, String email, String password, Role role) {
         // Check if user with email already exists
         if (userRepository.findByEmail(email).isPresent()) {
             throw new DuplicateEmailException(email);
         }
         
         User user = new User();
+        user.setName(name);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setRole(role);

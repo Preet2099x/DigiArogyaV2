@@ -28,6 +28,7 @@ public class UserController {
     public UserResponse createUser(@RequestBody CreateUserRequest request) {
 
         User user = userService.createUser(
+                request.getName(),
                 request.getEmail(),
                 request.getPassword(),
                 request.getRole()
@@ -35,6 +36,7 @@ public class UserController {
 
         return new UserResponse(
                 user.getId(),
+                user.getName(),
                 user.getEmail(),
                 user.getRole().name()
         );
@@ -58,6 +60,7 @@ public class UserController {
         return Map.of(
                 "token", token,
                 "userId", user.getId(),
+                "name", user.getName(),
                 "role", user.getRole().name()
         );
     }

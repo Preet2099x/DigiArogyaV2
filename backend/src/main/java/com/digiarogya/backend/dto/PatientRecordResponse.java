@@ -14,6 +14,7 @@ public class PatientRecordResponse {
     private String diagnosis;
     private Instant createdAt;
     private Long createdByDoctorId;
+    private String createdByDoctorName;
 
     public static PatientRecordResponse from(PatientRecord record) {
         PatientRecordResponse dto = new PatientRecordResponse();
@@ -24,6 +25,7 @@ public class PatientRecordResponse {
         dto.diagnosis = record.getDiagnosis();
         dto.createdAt = record.getCreatedAt();
         dto.createdByDoctorId = record.getCreatedByDoctorId();
+        dto.createdByDoctorName = record.getCreatedByDoctorName();
         return dto;
     }
 
@@ -36,4 +38,5 @@ public class PatientRecordResponse {
     }
     public Instant getCreatedAt() { return createdAt; }
     public Long getCreatedByDoctorId() { return createdByDoctorId; }
+    public String getCreatedByDoctorName() { return createdByDoctorName; }
 }

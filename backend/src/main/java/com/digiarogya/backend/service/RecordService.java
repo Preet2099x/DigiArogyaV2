@@ -127,9 +127,12 @@ public class RecordService {
             throw new AccessRequiredException("Access required to add record");
         }
 
+        User doctor = userRepository.findById(doctorId)
+                .orElseThrow(() -> new AccessDeniedException("Doctor not found"));
+
         PatientRecord record = new PatientRecord();
         record.setPatientId(patientId);
-        record.setCreatedByDoctorId(doctorId);
+        record.setCreatedByDoctor(doctor);
         record.setType(request.getType());
         record.setTitle(request.getTitle());
         record.setContent(request.getContent());
