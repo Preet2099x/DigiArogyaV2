@@ -5,6 +5,7 @@ import com.digiarogya.backend.entity.User;
 import com.digiarogya.backend.repository.UserRepository;
 import com.digiarogya.backend.exception.InvalidCredentialsException;
 import com.digiarogya.backend.exception.DuplicateEmailException;
+import com.digiarogya.backend.exception.ValidationException;
 
 
 import org.springframework.stereotype.Service;
@@ -23,6 +24,11 @@ public class UserService {
     }
 
     public User createUser(String name, String email, String password, Role role) {
+        // Validate name is not null or empty
+        if (name == null || name.trim().isEmpty()) {
+            throw new ValidationException("Name is required");
+        }
+        
         // Check if user with email already exists
         if (userRepository.findByEmail(email).isPresent()) {
             throw new DuplicateEmailException(email);
