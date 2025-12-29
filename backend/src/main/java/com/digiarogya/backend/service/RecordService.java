@@ -14,7 +14,10 @@ import com.digiarogya.backend.dto.CreateRecordRequest;
 
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,10 +67,10 @@ public class RecordService {
             throw new AccessDeniedException("Only doctors can access patient records");
         }
 
-        boolean hasAccess =
-                accessRepository.existsByPatientIdAndDoctorId(patientId, doctorId);
+        boolean hasValidAccess =
+                accessRepository.existsByPatientIdAndDoctorIdAndExpiresAtAfter(patientId, doctorId, Instant.now());
 
-        if (!hasAccess) {
+        if (!hasValidAccess) {
             throw new AccessRequiredException("Active access required from patient");
         }
 
@@ -96,16 +99,23 @@ public class RecordService {
             throw new AccessDeniedException("User is not a doctor");
         }
 
-        boolean alreadyExists =
-                accessRepository.existsByPatientIdAndDoctorId(patientId, doctor.getId());
+        Instant expiresAt = Instant.now().plus(30, ChronoUnit.DAYS);
 
-        if (alreadyExists) {
-            return; // idempotent
+        Optional<Access> existingAccess =
+                accessRepository.findByPatientIdAndDoctorId(patientId, doctor.getId());
+
+        if (existingAccess.isPresent()) {
+            // Refresh expiry if access already exists
+            Access access = existingAccess.get();
+            access.setExpiresAt(expiresAt);
+            accessRepository.save(access);
+            return;
         }
 
         Access access = new Access();
         access.setPatientId(patientId);
         access.setDoctorId(doctor.getId());
+        access.setExpiresAt(expiresAt);
 
         accessRepository.save(access);
     }
@@ -120,10 +130,10 @@ public class RecordService {
             throw new AccessDeniedException("Only doctors can add records");
         }
 
-        boolean hasAccess =
-                accessRepository.existsByPatientIdAndDoctorId(patientId, doctorId);
+        boolean hasValidAccess =
+                accessRepository.existsByPatientIdAndDoctorIdAndExpiresAtAfter(patientId, doctorId, Instant.now());
 
-        if (!hasAccess) {
+        if (!hasValidAccess) {
             throw new AccessRequiredException("Access required to add record");
         }
 

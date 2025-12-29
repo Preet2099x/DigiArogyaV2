@@ -1,6 +1,7 @@
 package com.digiarogya.backend.entity;
 
 import jakarta.persistence.*;
+import java.time.Instant;
 
 @Entity
 @Table(
@@ -21,6 +22,9 @@ public class Access {
     @Column(name = "doctor_id", nullable = false)
     private Long doctorId;
 
+    @Column(name = "expires_at", nullable = false)
+    private Instant expiresAt;
+
     public Long getId() {
         return id;
     }
@@ -33,11 +37,23 @@ public class Access {
         return doctorId;
     }
 
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
     public void setPatientId(Long patientId) {
         this.patientId = patientId;
     }
 
     public void setDoctorId(Long doctorId) {
         this.doctorId = doctorId;
+    }
+
+    public void setExpiresAt(Instant expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public boolean isExpired() {
+        return Instant.now().isAfter(expiresAt);
     }
 }
