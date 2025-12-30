@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,10 +10,10 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="/" className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2">
               <span className="text-3xl">🏥</span>
               <span className="text-xl font-bold text-emerald-600">DigiArogya</span>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
@@ -33,12 +34,12 @@ const Navbar = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="px-4 py-2 text-emerald-600 font-medium hover:text-emerald-700 transition-colors cursor-pointer">
+            <Link to="/login" className="px-4 py-2 text-emerald-600 font-medium hover:text-emerald-700 transition-colors">
               Login
-            </button>
-            <button className="px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors cursor-pointer">
+            </Link>
+            <Link to="/signup" className="px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors">
               Sign Up
-            </button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -75,12 +76,12 @@ const Navbar = () => {
                 Contact
               </a>
               <div className="flex flex-col space-y-2 pt-4 border-t">
-                <button className="px-4 py-2 text-emerald-600 font-medium hover:text-emerald-700 transition-colors cursor-pointer">
+                <Link to="/login" className="px-4 py-2 text-emerald-600 font-medium hover:text-emerald-700 transition-colors text-center">
                   Login
-                </button>
-                <button className="px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors cursor-pointer">
+                </Link>
+                <Link to="/signup" className="px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors text-center">
                   Sign Up
-                </button>
+                </Link>
               </div>
             </div>
           </div>
