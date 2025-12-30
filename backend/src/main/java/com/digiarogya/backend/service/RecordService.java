@@ -1,5 +1,6 @@
 package com.digiarogya.backend.service;
 
+import com.digiarogya.backend.dto.PaginatedRecordResponse;
 import com.digiarogya.backend.dto.PatientRecordResponse;
 import com.digiarogya.backend.entity.Access;
 import com.digiarogya.backend.entity.PatientRecord;
@@ -11,7 +12,10 @@ import com.digiarogya.backend.repository.PatientRecordRepository;
 import com.digiarogya.backend.repository.UserRepository;
 import com.digiarogya.backend.dto.CreateRecordRequest;
 
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -40,27 +44,39 @@ public class RecordService {
     // =========================
     // PATIENT: VIEW OWN RECORDS
     // =========================
-    public List<PatientRecordResponse> getMyRecords(Long patientId, String role) {
+    public PaginatedRecordResponse getMyRecords(Long patientId, String role, int page, int size) {
 
         if (!"PATIENT".equals(role)) {
             throw new AccessDeniedException("Only patients can view their records");
         }
 
-        List<PatientRecord> records =
-                patientRecordRepository.findByPatientId(patientId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<PatientRecord> recordPage = patientRecordRepository.findByPatientId(patientId, pageable);
 
-        return records.stream()
+        List<PatientRecordResponse> records = recordPage.getContent().stream()
                 .map(PatientRecordResponse::from)
                 .collect(Collectors.toList());
+
+        return new PaginatedRecordResponse(
+                records,
+                recordPage.getNumber(),
+                recordPage.getTotalPages(),
+                recordPage.getTotalElements(),
+                recordPage.getSize(),
+                recordPage.hasNext(),
+                recordPage.hasPrevious()
+        );
     }
 
     // =========================
     // DOCTOR: VIEW PATIENT RECORDS
     // =========================
-    public List<PatientRecordResponse> getPatientRecordsForDoctor(
+    public PaginatedRecordResponse getPatientRecordsForDoctor(
             Long doctorId,
             Long patientId,
-            String role
+            String role,
+            int page,
+            int size
     ) {
 
         if (!"DOCTOR".equals(role)) {
@@ -74,12 +90,22 @@ public class RecordService {
             throw new AccessRequiredException("Active access required from patient");
         }
 
-        List<PatientRecord> records =
-                patientRecordRepository.findByPatientId(patientId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<PatientRecord> recordPage = patientRecordRepository.findByPatientId(patientId, pageable);
 
-        return records.stream()
+        List<PatientRecordResponse> records = recordPage.getContent().stream()
                 .map(PatientRecordResponse::from)
                 .collect(Collectors.toList());
+
+        return new PaginatedRecordResponse(
+                records,
+                recordPage.getNumber(),
+                recordPage.getTotalPages(),
+                recordPage.getTotalElements(),
+                recordPage.getSize(),
+                recordPage.hasNext(),
+                recordPage.hasPrevious()
+        );
     }
 
     // =========================
