@@ -114,8 +114,8 @@ DigiArogya separates **data ownership** from **data access**:
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | **React** | 19.2 | UI framework |
-| **Vite** | 7.2 | Build tool & dev server |
-| **ESLint** | 9.x | Code quality |
+| **Vite** | 7.2 | Build tool & dev server || **Tailwind CSS** | 4.x | Utility-first CSS framework |
+| **React Router** | 7.x | Client-side routing || **ESLint** | 9.x | Code quality |
 
 ---
 
@@ -544,9 +544,26 @@ DigiArogyaV2/
 │
 ├── 📂 frontend/
 │   ├── 📂 src/
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── 📂 assets/
+│   │   ├── App.jsx                    # Main app with routing
+│   │   ├── main.jsx                   # React entry point
+│   │   ├── 📂 assets/
+│   │   ├── 📂 components/
+│   │   │   ├── Navbar.jsx             # Public navigation bar
+│   │   │   ├── Footer.jsx             # Site footer
+│   │   │   ├── DashboardLayout.jsx    # Dashboard shell with sidebar
+│   │   │   └── ProtectedRoute.jsx     # Auth route guard
+│   │   ├── 📂 pages/
+│   │   │   ├── LandingPage.jsx        # Home page
+│   │   │   ├── LoginPage.jsx          # User login
+│   │   │   ├── SignupPage.jsx         # User registration
+│   │   │   ├── NotFoundPage.jsx       # 404 error page
+│   │   │   └── 📂 dashboard/
+│   │   │       ├── Dashboard.jsx      # Dashboard home
+│   │   │       ├── MyRecords.jsx      # Patient records view
+│   │   │       └── GrantAccess.jsx    # Grant doctor access
+│   │   └── 📂 services/
+│   │       ├── authService.js         # JWT token management
+│   │       └── api.js                 # Authenticated API requests
 │   ├── index.html
 │   ├── package.json
 │   └── vite.config.js
@@ -585,9 +602,15 @@ We welcome contributions! Please follow these steps:
 - [x] Record creation by doctors
 - [x] Time-limited access grants
 - [x] Structured error handling
+- [x] React frontend with Tailwind CSS
+- [x] Landing page with features overview
+- [x] Login & Signup pages
+- [x] Protected dashboard routes
+- [x] Patient dashboard (My Records, Grant Access)
+- [x] 404 Not Found page
 
 ### 🔜 In Progress
-- [ ] Frontend implementation (React)
+- [ ] Doctor dashboard (view patients, add records)
 - [ ] Revoke access functionality
 - [ ] Access expiration notifications
 
