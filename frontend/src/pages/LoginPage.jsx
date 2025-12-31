@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import authService from '../services/authService';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -10,6 +11,13 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (authService.isAuthenticated()) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -81,9 +89,12 @@ const LoginPage = () => {
         return;
       }
 
-      // Store token and user info
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data));
+      // Store token and user info using authService
+      authService.login(data.token, {
+        userId: data.userId,
+        name: data.name,
+        role: data.role,
+      });
       
       // Redirect to dashboard
       navigate('/dashboard');
