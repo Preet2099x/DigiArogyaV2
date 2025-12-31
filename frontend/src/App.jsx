@@ -5,6 +5,7 @@ import Footer from './components/Footer'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
+import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import DashboardLayout from './components/DashboardLayout'
 import Dashboard from './pages/dashboard/Dashboard'
@@ -67,6 +68,9 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* 404 Catch-all Route */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Layout>
     </Router>
