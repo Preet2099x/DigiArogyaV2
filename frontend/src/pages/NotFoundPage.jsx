@@ -48,10 +48,6 @@ const NotFoundPage = () => {
             <Link to="/signup" className="text-emerald-600 hover:text-emerald-700 hover:underline">
               Sign Up
             </Link>
-            <span className="text-gray-300">•</span>
-            <Link to="/dashboard" className="text-emerald-600 hover:text-emerald-700 hover:underline">
-              Dashboard
-            </Link>
           </div>
         </div>
       </div>
