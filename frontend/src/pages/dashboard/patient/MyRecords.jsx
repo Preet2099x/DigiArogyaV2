@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { recordsApi } from '../../services/api';
+import { recordsApi } from '../../../services/api';
 
 const MyRecords = () => {
   const [records, setRecords] = useState([]);

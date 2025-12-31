@@ -7,9 +7,13 @@ const Dashboard = () => {
   const user = authService.getUser();
 
   useEffect(() => {
-    // Redirect to records page by default
-    navigate('/dashboard/records', { replace: true });
-  }, [navigate]);
+    // Redirect based on role
+    if (user?.role === 'DOCTOR') {
+      navigate('/dashboard/patients', { replace: true });
+    } else {
+      navigate('/dashboard/records', { replace: true });
+    }
+  }, [navigate, user?.role]);
 
   return (
     <div className="flex items-center justify-center h-64">

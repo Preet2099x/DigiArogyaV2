@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { recordsApi } from '../../services/api';
+import { recordsApi } from '../../../services/api';
 
 const GrantAccess = () => {
   const [doctorEmail, setDoctorEmail] = useState('');

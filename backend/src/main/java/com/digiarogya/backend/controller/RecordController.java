@@ -1,6 +1,7 @@
 package com.digiarogya.backend.controller;
 
 import com.digiarogya.backend.dto.GrantAccessRequest;
+import com.digiarogya.backend.dto.PaginatedPatientResponse;
 import com.digiarogya.backend.dto.PaginatedRecordResponse;
 import com.digiarogya.backend.service.RecordService;
 import com.digiarogya.backend.dto.CreateRecordRequest;
@@ -85,6 +86,21 @@ public class RecordController {
                 role,
                 body
         );
+    }
+
+    // =========================
+    // DOCTOR: GET MY PATIENTS
+    // =========================
+    @GetMapping("/patients")
+    public PaginatedPatientResponse getMyPatients(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Long doctorId = Long.valueOf((String) request.getAttribute("userId"));
+        String role = (String) request.getAttribute("role");
+
+        return recordService.getMyPatients(doctorId, role, page, size);
     }
 
 }

@@ -9,8 +9,13 @@ import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import DashboardLayout from './components/DashboardLayout'
 import Dashboard from './pages/dashboard/Dashboard'
-import MyRecords from './pages/dashboard/MyRecords'
-import GrantAccess from './pages/dashboard/GrantAccess'
+// Patient pages
+import MyRecords from './pages/dashboard/patient/MyRecords'
+import GrantAccess from './pages/dashboard/patient/GrantAccess'
+// Doctor pages
+import MyPatients from './pages/dashboard/doctor/MyPatients'
+import AddRecord from './pages/dashboard/doctor/AddRecord'
+import PatientRecords from './pages/dashboard/doctor/PatientRecords'
 
 // Layout component that conditionally shows Navbar/Footer
 const Layout = ({ children }) => {
@@ -64,6 +69,38 @@ function App() {
               <ProtectedRoute>
                 <DashboardLayout>
                   <GrantAccess />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Doctor Routes */}
+          <Route
+            path="/dashboard/patients"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <MyPatients />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/add-record"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <AddRecord />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/patient/:patientId/records"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <PatientRecords />
                 </DashboardLayout>
               </ProtectedRoute>
             }

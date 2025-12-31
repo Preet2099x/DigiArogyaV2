@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 
@@ -11,13 +11,6 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (authService.isAuthenticated()) {
-      navigate('/dashboard');
-    }
-  }, [navigate]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

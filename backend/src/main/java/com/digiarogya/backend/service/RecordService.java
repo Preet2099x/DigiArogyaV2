@@ -1,6 +1,8 @@
 package com.digiarogya.backend.service;
 
+import com.digiarogya.backend.dto.PaginatedPatientResponse;
 import com.digiarogya.backend.dto.PaginatedRecordResponse;
+import com.digiarogya.backend.dto.PatientAccessResponse;
 import com.digiarogya.backend.dto.PatientRecordResponse;
 import com.digiarogya.backend.entity.Access;
 import com.digiarogya.backend.entity.PatientRecord;
@@ -175,6 +177,42 @@ public class RecordService {
         record.setDiagnosis(request.getDiagnosis());
 
         patientRecordRepository.save(record);
+    }
+
+    // =========================
+    // DOCTOR: GET MY PATIENTS
+    // =========================
+    public PaginatedPatientResponse getMyPatients(Long doctorId, String role, int page, int size) {
+        if (!"DOCTOR".equals(role)) {
+            throw new AccessDeniedException("Only doctors can access this resource");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Access> accessPage = accessRepository.findByDoctorIdOrderByExpiresAtDesc(doctorId, pageable);
+
+        List<PatientAccessResponse> patients = accessPage.getContent().stream()
+                .map(access -> {
+                    User patient = userRepository.findById(access.getPatientId()).orElse(null);
+                    if (patient == null) return null;
+                    return new PatientAccessResponse(
+                            patient.getId(),
+                            patient.getName(),
+                            patient.getEmail(),
+                            access.getExpiresAt()
+                    );
+                })
+                .filter(p -> p != null)
+                .collect(Collectors.toList());
+
+        return new PaginatedPatientResponse(
+                patients,
+                accessPage.getNumber(),
+                accessPage.getTotalPages(),
+                accessPage.getTotalElements(),
+                accessPage.getSize(),
+                accessPage.hasNext(),
+                accessPage.hasPrevious()
+        );
     }
 
 }
