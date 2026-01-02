@@ -12,6 +12,7 @@ import com.digiarogya.backend.exception.AccessRequiredException;
 import com.digiarogya.backend.repository.AccessRepository;
 import com.digiarogya.backend.repository.PatientRecordRepository;
 import com.digiarogya.backend.repository.UserRepository;
+import com.digiarogya.backend.dto.ActiveAccessResponse;
 import com.digiarogya.backend.dto.CreateRecordRequest;
 
 import org.springframework.data.domain.Page;
@@ -213,6 +214,35 @@ public class RecordService {
                 accessPage.hasNext(),
                 accessPage.hasPrevious()
         );
+    }
+
+    // =========================
+    // PATIENT: MANAGE ACCESS
+    // =========================
+    public List<ActiveAccessResponse> getActiveAccesses(Long patientId) {
+        List<Access> accesses = accessRepository.findByPatientIdAndExpiresAtAfter(patientId, Instant.now());
+
+        return accesses.stream().map(access -> {
+            User doctor = userRepository.findById(access.getDoctorId())
+                    .orElseThrow(() -> new RuntimeException("Doctor not found"));
+            return new ActiveAccessResponse(
+                    access.getId(),
+                    doctor.getName(),
+                    doctor.getEmail(),
+                    access.getExpiresAt()
+            );
+        }).collect(Collectors.toList());
+    }
+
+    public void revokeAccess(Long accessId, Long patientId) {
+        Access access = accessRepository.findById(accessId)
+                .orElseThrow(() -> new RuntimeException("Access not found"));
+
+        if (!access.getPatientId().equals(patientId)) {
+            throw new AccessDeniedException("You can only revoke access to your own records");
+        }
+
+        accessRepository.delete(access);
     }
 
 }

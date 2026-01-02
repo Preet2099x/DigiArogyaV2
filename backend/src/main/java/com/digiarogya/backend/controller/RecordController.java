@@ -1,5 +1,6 @@
 package com.digiarogya.backend.controller;
 
+import com.digiarogya.backend.dto.ActiveAccessResponse;
 import com.digiarogya.backend.dto.GrantAccessRequest;
 import com.digiarogya.backend.dto.PaginatedPatientResponse;
 import com.digiarogya.backend.dto.PaginatedRecordResponse;
@@ -9,6 +10,8 @@ import com.digiarogya.backend.dto.CreateRecordRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/records")
@@ -101,6 +104,18 @@ public class RecordController {
         String role = (String) request.getAttribute("role");
 
         return recordService.getMyPatients(doctorId, role, page, size);
+    }
+
+    @GetMapping("/accesses")
+    public List<ActiveAccessResponse> getActiveAccesses(HttpServletRequest request) {
+        Long patientId = Long.valueOf((String) request.getAttribute("userId"));
+        return recordService.getActiveAccesses(patientId);
+    }
+
+    @DeleteMapping("/access/{id}")
+    public void revokeAccess(HttpServletRequest request, @PathVariable Long id) {
+        Long patientId = Long.valueOf((String) request.getAttribute("userId"));
+        recordService.revokeAccess(id, patientId);
     }
 
 }

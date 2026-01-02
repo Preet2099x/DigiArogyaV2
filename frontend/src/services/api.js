@@ -50,6 +50,25 @@ export const recordsApi = {
     }
     return true;
   },
+
+  // Get active accesses
+  getActiveAccesses: async () => {
+    const response = await fetchWithAuth('/records/accesses');
+    if (!response.ok) {
+      throw new Error('Failed to fetch active accesses');
+    }
+    return response.json();
+  },
+
+  // Revoke access
+  revokeAccess: async (accessId) => {
+    const response = await fetchWithAuth(`/records/access/${accessId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to revoke access');
+    }
+  },
 };
 
 // Doctor API
