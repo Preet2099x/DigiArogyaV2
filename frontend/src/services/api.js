@@ -117,4 +117,41 @@ export const doctorApi = {
   },
 };
 
-export default { recordsApi, doctorApi };
+// User API
+export const userApi = {
+  // Get current user profile
+  getProfile: async () => {
+    const response = await fetchWithAuth('/users/me');
+    if (!response.ok) {
+      throw new Error('Failed to fetch profile');
+    }
+    return response.json();
+  },
+
+  // Update profile (name)
+  updateProfile: async (name) => {
+    const response = await fetchWithAuth('/users/me', {
+      method: 'PUT',
+      body: JSON.stringify({ name }),
+    });
+    if (!response.ok) {
+      const error = await getErrorMessage(response);
+      throw new Error(error || 'Failed to update profile');
+    }
+    return response.json();
+  },
+
+  // Change password
+  changePassword: async (oldPassword, newPassword) => {
+    const response = await fetchWithAuth('/users/me/password', {
+      method: 'PUT',
+      body: JSON.stringify({ oldPassword, newPassword }),
+    });
+    if (!response.ok) {
+      const error = await getErrorMessage(response);
+      throw new Error(error || 'Failed to change password');
+    }
+  },
+};
+
+export default { recordsApi, doctorApi, userApi };

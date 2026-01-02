@@ -13,6 +13,7 @@ import Dashboard from './pages/dashboard/Dashboard'
 import MyRecords from './pages/dashboard/patient/MyRecords'
 import GrantAccess from './pages/dashboard/patient/GrantAccess'
 import ActiveAccess from './pages/dashboard/patient/ActiveAccess'
+import Profile from './pages/dashboard/Profile'
 // Doctor pages
 import MyPatients from './pages/dashboard/doctor/MyPatients'
 import AddRecord from './pages/dashboard/doctor/AddRecord'
@@ -80,6 +81,16 @@ function App() {
               <ProtectedRoute>
                 <DashboardLayout>
                   <ActiveAccess />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/profile"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Profile />
                 </DashboardLayout>
               </ProtectedRoute>
             }

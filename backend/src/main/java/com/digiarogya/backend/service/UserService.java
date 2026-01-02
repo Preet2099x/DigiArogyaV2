@@ -55,6 +55,30 @@ public class UserService {
         return user;
     }
 
+    public User getUser(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public User updateProfile(Long id, String name) {
+        User user = getUser(id);
+        if (name != null && !name.trim().isEmpty()) {
+            user.setName(name);
+        }
+        return userRepository.save(user);
+    }
+
+    public void changePassword(Long id, String oldPassword, String newPassword) {
+        User user = getUser(id);
+        
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new InvalidCredentialsException();
+        }
+        
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
 
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
