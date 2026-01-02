@@ -27,6 +27,17 @@ async function fetchWithAuth(url, options = {}) {
   return response;
 }
 
+// Helper to parse error messages
+async function getErrorMessage(response) {
+  const text = await response.text();
+  try {
+    const json = JSON.parse(text);
+    return json.message || text;
+  } catch {
+    return text;
+  }
+}
+
 // Records API (Patient)
 export const recordsApi = {
   // Get patient's own records (paginated)
@@ -45,7 +56,7 @@ export const recordsApi = {
       body: JSON.stringify({ doctorEmail }),
     });
     if (!response.ok) {
-      const error = await response.text();
+      const error = await getErrorMessage(response);
       throw new Error(error || 'Failed to grant access');
     }
     return true;
@@ -86,7 +97,7 @@ export const doctorApi = {
   getPatientRecords: async (patientId, page = 0, size = 10) => {
     const response = await fetchWithAuth(`/records/${patientId}?page=${page}&size=${size}`);
     if (!response.ok) {
-      const error = await response.text();
+      const error = await getErrorMessage(response);
       throw new Error(error || 'Failed to fetch patient records');
     }
     return response.json();
@@ -99,7 +110,7 @@ export const doctorApi = {
       body: JSON.stringify(recordData),
     });
     if (!response.ok) {
-      const error = await response.text();
+      const error = await getErrorMessage(response);
       throw new Error(error || 'Failed to add record');
     }
     return true;
