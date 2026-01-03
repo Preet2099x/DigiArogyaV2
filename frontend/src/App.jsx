@@ -13,11 +13,12 @@ import Dashboard from './pages/dashboard/Dashboard'
 import MyRecords from './pages/dashboard/patient/MyRecords'
 import GrantAccess from './pages/dashboard/patient/GrantAccess'
 import ActiveAccess from './pages/dashboard/patient/ActiveAccess'
-import Profile from './pages/dashboard/Profile'
+import PatientProfile from './pages/dashboard/patient/Profile'
 // Doctor pages
 import MyPatients from './pages/dashboard/doctor/MyPatients'
 import AddRecord from './pages/dashboard/doctor/AddRecord'
 import PatientRecords from './pages/dashboard/doctor/PatientRecords'
+import DoctorProfile from './pages/dashboard/doctor/Profile'
 
 // Layout component that conditionally shows Navbar/Footer
 const Layout = ({ children }) => {
@@ -86,11 +87,21 @@ function App() {
             }
           />
           <Route
-            path="/dashboard/profile"
+            path="/dashboard/patient/profile"
             element={
               <ProtectedRoute>
                 <DashboardLayout>
-                  <Profile />
+                  <PatientProfile />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/doctor/profile"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <DoctorProfile />
                 </DashboardLayout>
               </ProtectedRoute>
             }

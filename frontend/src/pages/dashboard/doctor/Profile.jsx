@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { userApi } from '../../services/api';
-import authService from '../../services/authService';
+import { userApi } from '../../../services/api';
+import authService from '../../../services/authService';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
