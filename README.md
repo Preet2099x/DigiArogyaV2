@@ -195,6 +195,22 @@ git clone https://github.com/yourusername/DigiArogyaV2.git
 cd DigiArogyaV2
 ```
 
+### ⚡ One-Click Start (Windows)
+
+If you are on Windows, you can use the provided batch script to start both backend and frontend:
+
+1.  Ensure you have set up the database (Step 2) and configured the application (Step 3).
+2.  For the first run, install frontend dependencies:
+    ```bash
+    cd frontend
+    npm install
+    cd ..
+    ```
+3.  Double-click `run-all.bat` or run it from the terminal:
+    ```cmd
+    .\run-all.bat
+    ```
+
 ### 2️⃣ Setup Database
 
 ```sql
@@ -204,16 +220,19 @@ CREATE DATABASE digiarogya;
 
 ### 3️⃣ Configure Application
 
-Edit `backend/src/main/resources/application.properties`:
+Edit `backend/src/main/resources/application.properties`.
+The default configuration is:
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/digiarogya
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+spring.datasource.username=postgres
+spring.datasource.password=Asmiov123
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 ```
+
+> **Note:** Update the username and password to match your local PostgreSQL installation.
 
 ### 4️⃣ Run Backend
 
@@ -559,8 +578,16 @@ DigiArogyaV2/
 │   │   │   ├── NotFoundPage.jsx       # 404 error page
 │   │   │   └── 📂 dashboard/
 │   │   │       ├── Dashboard.jsx      # Dashboard home
-│   │   │       ├── MyRecords.jsx      # Patient records view
-│   │   │       └── GrantAccess.jsx    # Grant doctor access
+│   │   │       ├── 📂 doctor/
+│   │   │       │   ├── AddRecord.jsx
+│   │   │       │   ├── MyPatients.jsx
+│   │   │       │   ├── PatientRecords.jsx
+│   │   │       │   └── Profile.jsx
+│   │   │       └── 📂 patient/
+│   │   │           ├── ActiveAccess.jsx
+│   │   │           ├── GrantAccess.jsx
+│   │   │           ├── MyRecords.jsx
+│   │   │           └── Profile.jsx
 │   │   └── 📂 services/
 │   │       ├── authService.js         # JWT token management
 │   │       └── api.js                 # Authenticated API requests
