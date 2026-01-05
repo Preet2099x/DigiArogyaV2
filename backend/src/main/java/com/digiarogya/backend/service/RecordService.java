@@ -285,7 +285,25 @@ public class RecordService {
             throw new AccessDeniedException("You can only revoke access to your own records");
         }
 
+        // Get doctor details before deleting access
+        User doctor = userRepository.findById(access.getDoctorId()).orElse(null);
+        User patient = userRepository.findById(patientId).orElse(null);
+
         accessRepository.delete(access);
+
+        // Log access revocation
+        if (doctor != null && patient != null) {
+            auditLogService.logAudit(
+                patientId,
+                patientId,
+                patient.getName(),
+                "PATIENT",
+                "ACCESS_REVOKED",
+                null,
+                null,
+                "Revoked access from Dr. " + doctor.getName()
+            );
+        }
     }
 
 }
