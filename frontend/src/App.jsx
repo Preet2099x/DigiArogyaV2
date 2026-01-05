@@ -13,6 +13,7 @@ import Dashboard from './pages/dashboard/Dashboard'
 import MyRecords from './pages/dashboard/patient/MyRecords'
 import GrantAccess from './pages/dashboard/patient/GrantAccess'
 import ActiveAccess from './pages/dashboard/patient/ActiveAccess'
+import AccessHistory from './pages/dashboard/patient/AccessHistory'
 import PatientProfile from './pages/dashboard/patient/Profile'
 // Doctor pages
 import MyPatients from './pages/dashboard/doctor/MyPatients'
@@ -82,6 +83,16 @@ function App() {
               <ProtectedRoute>
                 <DashboardLayout>
                   <ActiveAccess />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/access-history"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <AccessHistory />
                 </DashboardLayout>
               </ProtectedRoute>
             }

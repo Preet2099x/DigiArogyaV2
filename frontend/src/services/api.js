@@ -154,4 +154,13 @@ export const userApi = {
   },
 };
 
+// Audit Log API
+export const getAuditLogs = async (page = 0, size = 20) => {
+  const response = await fetchWithAuth(`/audit-logs?page=${page}&size=${size}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch audit logs');
+  }
+  return response.json();
+};
+
 export default { recordsApi, doctorApi, userApi };

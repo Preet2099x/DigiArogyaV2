@@ -33,15 +33,18 @@ public class RecordService {
     private final PatientRecordRepository patientRecordRepository;
     private final AccessRepository accessRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     public RecordService(
             PatientRecordRepository patientRecordRepository,
             AccessRepository accessRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            AuditLogService auditLogService
     ) {
         this.patientRecordRepository = patientRecordRepository;
         this.accessRepository = accessRepository;
         this.userRepository = userRepository;
+        this.auditLogService = auditLogService;
     }
 
     // =========================
@@ -91,6 +94,21 @@ public class RecordService {
 
         if (!hasValidAccess) {
             throw new AccessRequiredException("Active access required from patient");
+        }
+
+        // Log access to patient records
+        User doctor = userRepository.findById(doctorId).orElse(null);
+        if (doctor != null && page == 0) { // Only log on first page view to avoid duplicate logs
+            auditLogService.logAudit(
+                patientId,
+                doctorId,
+                doctor.getName(),
+                "DOCTOR",
+                "RECORD_VIEWED",
+                null,
+                null,
+                "Doctor viewed patient records"
+            );
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -147,6 +165,19 @@ public class RecordService {
         access.setExpiresAt(expiresAt);
 
         accessRepository.save(access);
+
+        // Log access grant
+        User patient = userRepository.findById(patientId).orElse(null);
+        auditLogService.logAudit(
+            patientId,
+            patientId,
+            patient != null ? patient.getName() : "Patient",
+            "PATIENT",
+            "ACCESS_GRANTED",
+            null,
+            null,
+            "Granted access to Dr. " + doctor.getName()
+        );
     }
 
     public void addRecord(
@@ -177,7 +208,19 @@ public class RecordService {
         record.setContent(request.getContent());
         record.setDiagnosis(request.getDiagnosis());
 
-        patientRecordRepository.save(record);
+        PatientRecord savedRecord = patientRecordRepository.save(record);
+
+        // Log record addition
+        auditLogService.logAudit(
+            patientId,
+            doctorId,
+            doctor.getName(),
+            "DOCTOR",
+            "RECORD_ADDED",
+            savedRecord.getId(),
+            savedRecord.getTitle(),
+            "Added new " + savedRecord.getType() + " record"
+        );
     }
 
     // =========================
