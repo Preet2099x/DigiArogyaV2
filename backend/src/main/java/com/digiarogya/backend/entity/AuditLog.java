@@ -14,6 +14,9 @@ public class AuditLog {
     @Column(name = "patient_id", nullable = false)
     private Long patientId;
 
+    @Column(name = "patient_name")
+    private String patientName;
+
     @Column(name = "actor_id", nullable = false)
     private Long actorId;
 
@@ -58,6 +61,14 @@ public class AuditLog {
 
     public void setPatientId(Long patientId) {
         this.patientId = patientId;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
     }
 
     public Long getActorId() {

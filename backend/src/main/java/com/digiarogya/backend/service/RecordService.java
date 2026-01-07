@@ -98,9 +98,11 @@ public class RecordService {
 
         // Log access to patient records
         User doctor = userRepository.findById(doctorId).orElse(null);
+        User patient = userRepository.findById(patientId).orElse(null);
         if (doctor != null && page == 0) { // Only log on first page view to avoid duplicate logs
             auditLogService.logAudit(
                 patientId,
+                patient != null ? patient.getName() : "Patient",
                 doctorId,
                 doctor.getName(),
                 "DOCTOR",
@@ -170,6 +172,7 @@ public class RecordService {
         User patient = userRepository.findById(patientId).orElse(null);
         auditLogService.logAudit(
             patientId,
+            patient != null ? patient.getName() : "Patient",
             patientId,
             patient != null ? patient.getName() : "Patient",
             "PATIENT",
@@ -211,8 +214,10 @@ public class RecordService {
         PatientRecord savedRecord = patientRecordRepository.save(record);
 
         // Log record addition
+        User patient = userRepository.findById(patientId).orElse(null);
         auditLogService.logAudit(
             patientId,
+            patient != null ? patient.getName() : "Patient",
             doctorId,
             doctor.getName(),
             "DOCTOR",
@@ -295,6 +300,7 @@ public class RecordService {
         if (doctor != null && patient != null) {
             auditLogService.logAudit(
                 patientId,
+                patient.getName(),
                 patientId,
                 patient.getName(),
                 "PATIENT",

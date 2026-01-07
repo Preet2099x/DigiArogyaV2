@@ -4,6 +4,8 @@ import java.time.Instant;
 
 public class AuditLogResponse {
     private Long id;
+    private Long patientId;
+    private String patientName;
     private Long actorId;
     private String actorName;
     private String actorRole;
@@ -16,10 +18,13 @@ public class AuditLogResponse {
     // Constructors
     public AuditLogResponse() {}
 
-    public AuditLogResponse(Long id, Long actorId, String actorName, String actorRole, 
-                           String action, Long recordId, String recordTitle, 
-                           String details, Instant createdAt) {
+    public AuditLogResponse(Long id, Long patientId, String patientName, Long actorId, 
+                           String actorName, String actorRole, String action, 
+                           Long recordId, String recordTitle, String details, 
+                           Instant createdAt) {
         this.id = id;
+        this.patientId = patientId;
+        this.patientName = patientName;
         this.actorId = actorId;
         this.actorName = actorName;
         this.actorRole = actorRole;
@@ -37,6 +42,22 @@ public class AuditLogResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
     }
 
     public Long getActorId() {

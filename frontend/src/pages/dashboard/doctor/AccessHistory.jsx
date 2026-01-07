@@ -27,7 +27,7 @@ const AccessHistory = () => {
       setTotalItems(response.totalItems);
       setError('');
     } catch (err) {
-      setError('Failed to load access history');
+      setError('Failed to load activity history');
       console.error(err);
     } finally {
       setLoading(false);
@@ -116,9 +116,9 @@ const AccessHistory = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Access History</h1>
+        <h1 className="text-3xl font-bold text-gray-900">My Activity History</h1>
         <p className="mt-2 text-sm text-gray-600">
-          View all activity related to your medical records
+          View all your activities and interactions with patient records
         </p>
       </div>
 
@@ -153,9 +153,9 @@ const AccessHistory = () => {
           <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No access history</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No activity history</h3>
           <p className="mt-1 text-sm text-gray-500">
-            {filterAction === 'ALL' ? 'No activity has been logged yet.' : 'No activities found for this filter.'}
+            {filterAction === 'ALL' ? 'No activities have been logged yet.' : 'No activities found for this filter.'}
           </p>
         </div>
       ) : (
@@ -176,6 +176,11 @@ const AccessHistory = () => {
                         <p className="text-sm text-gray-600 mt-1">
                           {log.details}
                         </p>
+                        {log.patientName && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Patient: {log.patientName}
+                          </p>
+                        )}
                         {log.recordTitle && (
                           <p className="text-xs text-gray-500 mt-1">
                             Record: {log.recordTitle}
@@ -187,13 +192,6 @@ const AccessHistory = () => {
                           {formatDateTime(log.createdAt)}
                         </p>
                       </div>
-                    </div>
-                    <div className="mt-2 flex items-center text-xs text-gray-500">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                        {log.actorRole}
-                      </span>
-                      <span className="mx-2">•</span>
-                      <span>{log.actorName}</span>
                     </div>
                   </div>
                 </div>
@@ -225,7 +223,7 @@ const AccessHistory = () => {
                   <p className="text-sm text-gray-700">
                     Showing page <span className="font-medium">{currentPage + 1}</span> of{' '}
                     <span className="font-medium">{totalPages}</span>
-                    {' '}• Total <span className="font-medium">{totalItems}</span> {totalItems === 1 ? 'entry' : 'entries'}
+                    {' '}• Total <span className="font-medium">{totalItems}</span> {totalItems === 1 ? 'activity' : 'activities'}
                     {filterAction !== 'ALL' && (
                       <span className="text-gray-500"> ({filteredLogs.length} filtered)</span>
                     )}
