@@ -80,6 +80,18 @@ export const recordsApi = {
       throw new Error('Failed to revoke access');
     }
   },
+
+  // Extend access
+  extendAccess: async (accessId, days) => {
+    const response = await fetchWithAuth(`/records/access/${accessId}/extend`, {
+      method: 'PUT',
+      body: JSON.stringify({ days }),
+    });
+    if (!response.ok) {
+      const error = await getErrorMessage(response);
+      throw new Error(error || 'Failed to extend access');
+    }
+  },
 };
 
 // Doctor API

@@ -312,4 +312,42 @@ public class RecordService {
         }
     }
 
+    public void extendAccess(Long accessId, Long patientId, Integer days) {
+        Access access = accessRepository.findById(accessId)
+                .orElseThrow(() -> new RuntimeException("Access not found"));
+
+        if (!access.getPatientId().equals(patientId)) {
+            throw new AccessDeniedException("You can only extend access to your own records");
+        }
+
+        // Validate days
+        if (days == null || days <= 0 || days > 365) {
+            throw new IllegalArgumentException("Days must be between 1 and 365");
+        }
+
+        // Extend the expiration time
+        Instant newExpiresAt = access.getExpiresAt().plus(days, ChronoUnit.DAYS);
+        access.setExpiresAt(newExpiresAt);
+        accessRepository.save(access);
+
+        // Get doctor and patient details for audit log
+        User doctor = userRepository.findById(access.getDoctorId()).orElse(null);
+        User patient = userRepository.findById(patientId).orElse(null);
+
+        // Log access extension
+        if (doctor != null && patient != null) {
+            auditLogService.logAudit(
+                patientId,
+                patient.getName(),
+                patientId,
+                patient.getName(),
+                "PATIENT",
+                "ACCESS_EXTENDED",
+                null,
+                null,
+                "Extended access for Dr. " + doctor.getName() + " by " + days + " days"
+            );
+        }
+    }
+
 }

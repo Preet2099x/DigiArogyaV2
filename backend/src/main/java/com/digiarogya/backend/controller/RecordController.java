@@ -2,6 +2,7 @@ package com.digiarogya.backend.controller;
 
 import com.digiarogya.backend.dto.ActiveAccessResponse;
 import com.digiarogya.backend.dto.GrantAccessRequest;
+import com.digiarogya.backend.dto.ExtendAccessRequest;
 import com.digiarogya.backend.dto.PaginatedPatientResponse;
 import com.digiarogya.backend.dto.PaginatedRecordResponse;
 import com.digiarogya.backend.service.RecordService;
@@ -116,6 +117,12 @@ public class RecordController {
     public void revokeAccess(HttpServletRequest request, @PathVariable Long id) {
         Long patientId = Long.valueOf((String) request.getAttribute("userId"));
         recordService.revokeAccess(id, patientId);
+    }
+
+    @PutMapping("/access/{id}/extend")
+    public void extendAccess(HttpServletRequest request, @PathVariable Long id, @RequestBody ExtendAccessRequest body) {
+        Long patientId = Long.valueOf((String) request.getAttribute("userId"));
+        recordService.extendAccess(id, patientId, body.getDays());
     }
 
 }
