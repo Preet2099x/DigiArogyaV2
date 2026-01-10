@@ -5,6 +5,7 @@ const MyRecords = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filterType, setFilterType] = useState('ALL');
   const [pagination, setPagination] = useState({
     currentPage: 0,
     totalPages: 0,
@@ -14,11 +15,11 @@ const MyRecords = () => {
     hasPrevious: false,
   });
 
-  const fetchRecords = async (page = 0) => {
+  const fetchRecords = async (page = 0, type = filterType) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await recordsApi.getMyRecords(page, 10);
+      const data = await recordsApi.getMyRecords(page, 10, type);
       setRecords(data.records || []);
       setPagination({
         currentPage: data.currentPage,
@@ -36,8 +37,8 @@ const MyRecords = () => {
   };
 
   useEffect(() => {
-    fetchRecords();
-  }, []);
+    fetchRecords(0, filterType);
+  }, [filterType]);
 
   const handlePageChange = (newPage) => {
     fetchRecords(newPage);
@@ -55,26 +56,28 @@ const MyRecords = () => {
 
   const getTypeColor = (type) => {
     const colors = {
+      NOTE: 'bg-gray-100 text-gray-800',
+      DIAGNOSIS: 'bg-orange-100 text-orange-800',
       PRESCRIPTION: 'bg-blue-100 text-blue-800',
       LAB_RESULT: 'bg-purple-100 text-purple-800',
-      DIAGNOSIS: 'bg-orange-100 text-orange-800',
       IMAGING: 'bg-pink-100 text-pink-800',
-      VACCINATION: 'bg-green-100 text-green-800',
-      OTHER: 'bg-gray-100 text-gray-800',
+      VITALS: 'bg-red-100 text-red-800',
+      PROCEDURE: 'bg-green-100 text-green-800',
     };
-    return colors[type] || colors.OTHER;
+    return colors[type] || colors.NOTE;
   };
 
   const getTypeIcon = (type) => {
     const icons = {
+      NOTE: '📝',
+      DIAGNOSIS: '🩺',
       PRESCRIPTION: '💊',
       LAB_RESULT: '🔬',
-      DIAGNOSIS: '🩺',
       IMAGING: '📷',
-      VACCINATION: '💉',
-      OTHER: '📄',
+      VITALS: '❤️',
+      PROCEDURE: '⚕️',
     };
-    return icons[type] || icons.OTHER;
+    return icons[type] || icons.NOTE;
   };
 
   if (loading && records.length === 0) {
@@ -106,6 +109,28 @@ const MyRecords = () => {
         )}
       </div>
 
+      {/* Filter */}
+      <div className="mb-4">
+        <label htmlFor="type-filter" className="block text-sm font-medium text-gray-700 mb-2">
+          Filter by Record Type
+        </label>
+        <select
+          id="type-filter"
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="block w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"
+        >
+          <option value="ALL">All Types</option>
+          <option value="NOTE">📝 Note</option>
+          <option value="DIAGNOSIS">🩺 Diagnosis</option>
+          <option value="PRESCRIPTION">💊 Prescription</option>
+          <option value="LAB_RESULT">🔬 Lab Result</option>
+          <option value="IMAGING">📷 Imaging</option>
+          <option value="VITALS">❤️ Vitals</option>
+          <option value="PROCEDURE">⚕️ Procedure</option>
+        </select>
+      </div>
+
       {/* Error message */}
       {error && (
         <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
@@ -126,9 +151,14 @@ const MyRecords = () => {
       {records.length === 0 && !loading ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
           <div className="text-6xl mb-4">📋</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No records yet</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            {filterType === 'ALL' ? 'No records yet' : 'No records found'}
+          </h3>
           <p className="text-gray-500">
-            Your health records will appear here once a doctor adds them.
+            {filterType === 'ALL' 
+              ? 'Your health records will appear here once a doctor adds them.'
+              : `No ${filterType.toLowerCase().replace('_', ' ')} records found. Try a different filter.`
+            }
           </p>
         </div>
       ) : (

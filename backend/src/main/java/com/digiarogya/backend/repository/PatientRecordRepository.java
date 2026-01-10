@@ -1,6 +1,7 @@
 package com.digiarogya.backend.repository;
 
 import com.digiarogya.backend.entity.PatientRecord;
+import com.digiarogya.backend.entity.RecordType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,7 @@ public interface PatientRecordRepository
 
     // fetch paginated records belonging to a patient (sorting handled via Pageable)
     Page<PatientRecord> findByPatientId(Long patientId, Pageable pageable);
+
+    // fetch paginated records belonging to a patient filtered by type
+    Page<PatientRecord> findByPatientIdAndType(Long patientId, RecordType type, Pageable pageable);
 }

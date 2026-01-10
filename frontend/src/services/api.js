@@ -41,8 +41,12 @@ async function getErrorMessage(response) {
 // Records API (Patient)
 export const recordsApi = {
   // Get patient's own records (paginated)
-  getMyRecords: async (page = 0, size = 10) => {
-    const response = await fetchWithAuth(`/records/me?page=${page}&size=${size}`);
+  getMyRecords: async (page = 0, size = 10, type = null) => {
+    let url = `/records/me?page=${page}&size=${size}`;
+    if (type && type !== 'ALL') {
+      url += `&type=${type}`;
+    }
+    const response = await fetchWithAuth(url);
     if (!response.ok) {
       throw new Error('Failed to fetch records');
     }

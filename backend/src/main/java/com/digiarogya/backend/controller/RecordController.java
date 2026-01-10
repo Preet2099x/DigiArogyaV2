@@ -31,12 +31,13 @@ public class RecordController {
     public PaginatedRecordResponse getMyRecords(
             HttpServletRequest request,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String type
     ) {
         Long patientId = Long.valueOf((String) request.getAttribute("userId"));
         String role = (String) request.getAttribute("role");
 
-        return recordService.getMyRecords(patientId, role, page, size);
+        return recordService.getMyRecords(patientId, role, page, size, type);
     }
 
     // =========================

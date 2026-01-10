@@ -6,6 +6,7 @@ import com.digiarogya.backend.dto.PatientAccessResponse;
 import com.digiarogya.backend.dto.PatientRecordResponse;
 import com.digiarogya.backend.entity.Access;
 import com.digiarogya.backend.entity.PatientRecord;
+import com.digiarogya.backend.entity.RecordType;
 import com.digiarogya.backend.entity.User;
 import com.digiarogya.backend.exception.AccessDeniedException;
 import com.digiarogya.backend.exception.AccessRequiredException;
@@ -51,13 +52,29 @@ public class RecordService {
     // PATIENT: VIEW OWN RECORDS
     // =========================
     public PaginatedRecordResponse getMyRecords(Long patientId, String role, int page, int size) {
+        return getMyRecords(patientId, role, page, size, null);
+    }
+
+    public PaginatedRecordResponse getMyRecords(Long patientId, String role, int page, int size, String typeFilter) {
 
         if (!"PATIENT".equals(role)) {
             throw new AccessDeniedException("Only patients can view their records");
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<PatientRecord> recordPage = patientRecordRepository.findByPatientId(patientId, pageable);
+        Page<PatientRecord> recordPage;
+
+        if (typeFilter != null && !typeFilter.isEmpty() && !"ALL".equals(typeFilter)) {
+            try {
+                RecordType type = RecordType.valueOf(typeFilter);
+                recordPage = patientRecordRepository.findByPatientIdAndType(patientId, type, pageable);
+            } catch (IllegalArgumentException e) {
+                // Invalid type filter, return all records
+                recordPage = patientRecordRepository.findByPatientId(patientId, pageable);
+            }
+        } else {
+            recordPage = patientRecordRepository.findByPatientId(patientId, pageable);
+        }
 
         List<PatientRecordResponse> records = recordPage.getContent().stream()
                 .map(PatientRecordResponse::from)
