@@ -2,7 +2,7 @@
 
 import authService from './authService';
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 // Generic fetch wrapper with authentication
 async function fetchWithAuth(url, options = {}) {
