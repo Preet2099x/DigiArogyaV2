@@ -7,10 +7,26 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: production
-      - key: DATABASE_URL
+      - key: DB_HOST
         fromDatabase:
           name: digiarogya-db
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: digiarogya-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: digiarogya-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: digiarogya-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: digiarogya-db
+          property: password
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRATION
