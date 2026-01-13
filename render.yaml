@@ -31,6 +31,8 @@ services:
         generateValue: true
       - key: JWT_EXPIRATION
         value: "86400000"
+      - key: FRONTEND_URL
+        value: "https://digiarogya.vercel.app"
 
 databases:
   - name: digiarogya-db
