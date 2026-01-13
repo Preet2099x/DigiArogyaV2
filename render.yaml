@@ -1,10 +1,9 @@
 services:
   - type: web
     name: digiarogya-backend
-    env: java
+    env: docker
+    dockerfilePath: ./Dockerfile
     plan: free
-    buildCommand: cd backend && chmod +x mvnw && ./mvnw clean install -DskipTests
-    startCommand: java -jar backend/target/backend-0.0.1-SNAPSHOT.jar
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: production
