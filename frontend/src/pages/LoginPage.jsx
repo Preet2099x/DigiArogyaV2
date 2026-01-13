@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -61,7 +63,7 @@ const LoginPage = () => {
     setErrors({});
 
     try {
-      const response = await fetch('/api/users/login', {
+      const response = await fetch(`${API_BASE}/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
