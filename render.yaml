@@ -1,9 +1,9 @@
 services:
   - type: web
     name: digiarogya-backend
-    runtime: java
+    env: java
     plan: free
-    buildCommand: cd backend && ./mvnw clean install -DskipTests
+    buildCommand: cd backend && chmod +x mvnw && ./mvnw clean install -DskipTests
     startCommand: java -jar backend/target/backend-0.0.1-SNAPSHOT.jar
     envVars:
       - key: SPRING_PROFILES_ACTIVE
