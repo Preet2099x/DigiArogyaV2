@@ -4,6 +4,7 @@
     <strong>A Secure, Consent-Driven Digital Health Records Management System</strong>
   </p>
   <p align="center">
+    <a href="https://digiarogya.vercel.app">🚀 Live Demo</a> •
     <a href="#-quick-start">Quick Start</a> •
     <a href="#-features">Features</a> •
     <a href="#-api-reference">API Reference</a> •
@@ -18,26 +19,53 @@
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React">
   <img src="https://img.shields.io/badge/JWT-Auth-red?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT">
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/Status-Live-success?style=for-the-badge" alt="Status">
 </p>
+
+> **Note**: This is a portfolio project showcasing full-stack development skills, security best practices, and modern web architecture. Built to demonstrate proficiency in Java Spring Boot, React, and healthcare domain knowledge.
 
 ---
 
 ## 📋 Table of Contents
 
-- [Overview](#-overview)
-- [Key Principles](#-key-principles)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Architecture](#-architecture)
-- [Quick Start](#-quick-start)
-- [API Reference](#-api-reference)
-- [Database Schema](#-database-schema)
-- [Security](#-security)
-- [Project Structure](#-project-structure)
-- [Contributing](#-contributing)
-- [Roadmap](#-roadmap)
-- [License](#-license)
+- [🌐 Live Demo](#-live-demo)
+- [🎯 Overview](#-overview)
+- [💡 Key Principles](#-key-principles)
+- [✨ Features](#-features)
+- [🛠️ Tech Stack](#-tech-stack)
+- [🏗️ Architecture](#-architecture)
+- [🚀 Quick Start](#-quick-start)
+- [📡 API Reference](#-api-reference)
+- [💾 Database Schema](#-database-schema)
+- [🔐 Security](#-security)
+- [📂 Project Structure](#-project-structure)
+- [🤝 Contributing](#-contributing)
 
+
+### 🔗 Links
+- **Frontend (Deployed)**: [https://digiarogya.vercel.app](https://digiarogya.vercel.app)
+- **Source Code**: [GitHub Repository](https://github.com/yourusername/DigiArogyaV2)
+
+### 👥 Demo Accounts
+Test the application with these pre-configured accounts:
+
+**Patient Account:**
+```
+Email: patient@test.com
+Password: test123
+```
+
+**Doctor Account:**
+```
+Email: doctor@test.com
+Password: test123
+```
+
+> **Note**: Demo database resets daily. Feel free to create your own test accounts!
+
+---
+
+## �
 ---
 
 ## 🎯 Overview
@@ -94,6 +122,16 @@ DigiArogya separates **data ownership** from **data access**:
 - ✅ Patient-controlled data sharing
 - ✅ Automatic access expiration
 - ✅ Comprehensive error handling
+- ✅ **NEW:** Advanced search & filtering system
+
+### 🆕 Latest Features (January 2026)
+| Feature | Description |
+|---------|-------------|
+| 🔍 **Advanced Search** | Full-text search across records by title, content, diagnosis, and doctor name |
+| 📅 **Date Range Filtering** | Filter records by custom date ranges |
+| 🏷️ **Type-Based Filtering** | Quick filters for all record types |
+| 🎯 **Patient Search** | Doctors can quickly find patients by name or email |
+| ⚡ **Real-time Search** | Debounced search with instant results |
 
 ---
 
@@ -600,9 +638,113 @@ DigiArogyaV2/
 
 ---
 
+### ✅ Completed
+- [x] User registration with role validation
+- [x] JWT authentication & authorization
+- [x] Patient record viewing with pagination
+- [x] Doctor access control system
+- [x] Record creation by doctors
+- [x] Time-limited access grants (30 days, extendable)
+- [x] Access revoke functionality
+- [x] Structured error handling
+- [x] React frontend with Tailwind CSS
+- [x] Landing page with features overview
+- [x] Login & Signup pages with validation
+- [x] Protected dashboard routes
+- [x] Patient dashboard (My Records, Grant Access, Active Access, Profile)
+- [x] Doctor dashboard (My Patients, Patient Records, Add Record, Profile)
+- [x] 404 Not Found page
+- [x] **Advanced Search & Filtering System**
+  - [x] Full-text search across records
+  - [x] Date range filtering
+  - [x] Record type filtering
+  - [x] Patient search for doctors
+  - [x] Real-time debounced search
+
+### 🔜 In Progress
+- [ ] Audit logging UI
+- [ ] Access expiration notifications
+- [ ] Email integration
+
+### 📋 Planned (Next Features)
+- [ ] Document/File upload system
+- [ ] Export records to PDF
+- [ ] Two-factor authentication (2FA)
+- [ ] Email notifications
+- [ ] Admin dashboard
+- [ ] API rate limiting
+- [ ] Docker deployment
+- [ ] Mobile responsive improvements
+
+---
+
+## 🚀 Deployment
+
+### Frontend Deployment (Vercel)
+The frontend is deployed on Vercel for fast, global CDN delivery.
+
+**Live URL**: [https://digiarogya.vercel.app](https://digiarogya.vercel.app)
+
+### Backend Deployment
+Backend is deployed on Renderwith PostgreSQL database.
+**Live URL**: [https://digiarogya-backend.onrender.com](https://digiarogya-backend.onrender.com)
+
+**Configuration**:
+- Production database: PostgreSQL 16
+- Environment: Production
+- CORS: Configured for frontend domain
+
+---
+
+### 🔐 **Security Best Practices**
+- JWT authentication implementation from scratch
+- Role-based access control (RBAC)
+- Consent-driven data access model
+- Password hashing with BCrypt
+- Input validation and error handling
+
+### 💾 **Database Design**
+- Normalized PostgreSQL database schema
+- JPA relationships and queries
+- Custom JPQL queries for complex filtering
+- Transaction management
+
+### 🎨 **UI/UX Design**
+- Responsive design with Tailwind CSS
+- Intuitive user interfaces
+- Role-based dashboards
+- Form validation and error messaging
+- Loading states and user feedback
+
+### 🔍 **Advanced Features**
+- Full-text search implementation
+- Date range filtering
+- Real-time debounced search
+- Pagination with metadata
+- Access control with expiration
+
+### 🏗️ **Architecture & Best Practices**
+- Layered architecture (Controller → Service → Repository)
+- Dependency injection
+- Separation of concerns
+- Code reusability
+- Exception handling strategy
+
+---
+
+## 📊 Technical Achievements
+
+- ✅ **Zero-Trust Security Model**: No default access to patient data
+- ✅ **Scalable Architecture**: Stateless authentication for horizontal scaling
+- ✅ **Performance**: Optimized queries with pagination and indexing
+- ✅ **User Experience**: Intuitive workflows for both patients and doctors
+- ✅ **Maintainability**: Well-structured codebase with clear separation of concerns
+
+---
+
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
+Contributions are welcomed! Please follow these steps:
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
@@ -619,54 +761,10 @@ We welcome contributions! Please follow these steps:
 
 ---
 
-## 🗺️ Roadmap
-
-### ✅ Completed
-- [x] User registration with role validation
-- [x] JWT authentication
-- [x] Patient record viewing with pagination
-- [x] Doctor access control system
-- [x] Record creation by doctors
-- [x] Time-limited access grants
-- [x] Structured error handling
-- [x] React frontend with Tailwind CSS
-- [x] Landing page with features overview
-- [x] Login & Signup pages
-- [x] Protected dashboard routes
-- [x] Patient dashboard (My Records, Grant Access)
-- [x] 404 Not Found page
-
-### 🔜 In Progress
-- [ ] Doctor dashboard (view patients, add records)
-- [ ] Revoke access functionality
-- [ ] Access expiration notifications
-
-### 📋 Planned
-- [ ] Audit logging
-- [ ] Record filtering and search
-- [ ] File/document uploads
-- [ ] Email notifications
-- [ ] Multi-factor authentication
-- [ ] Admin dashboard
-- [ ] Docker deployment
-- [ ] API rate limiting
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👨‍💻 Author
-
-**Anmol**
-
-- GitHub: [@anmol](https://github.com/anmol)
-
----
-
 <p align="center">
   <sub>Built with ❤️ for better healthcare data management</sub>
+</p>
+
+<p align="center">
+  <sub>If you found this project helpful, please consider giving it a ⭐️</sub>
 </p>
