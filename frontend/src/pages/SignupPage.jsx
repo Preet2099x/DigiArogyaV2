@@ -160,8 +160,8 @@ const SignupPage = () => {
             <span className="text-4xl">🏥</span>
             <span className="text-2xl font-bold text-emerald-600">DigiArogya</span>
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Create your account</h2>
-          <p className="mt-2 text-gray-600">Join DigiArogya to manage your health records</p>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">Join the Health Network</h2>
+          <p className="mt-2 text-gray-600">Create your secure patient or doctor account</p>
         </div>
 
         {/* Signup Form */}
@@ -228,7 +228,7 @@ const SignupPage = () => {
 
             <div>
               <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-                I am a...
+                I am signing up as a...
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {roles.map((role) => (

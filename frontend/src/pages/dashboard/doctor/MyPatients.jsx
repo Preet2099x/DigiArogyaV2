@@ -80,7 +80,7 @@ const MyPatients = () => {
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Patients</h1>
-          <p className="text-gray-600 mt-1">View patients who have granted you access to their records</p>
+          <p className="text-gray-600 mt-1">Manage patients who have entrusted you with their care</p>
         </div>
         {patients.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 flex items-center gap-3">
@@ -117,7 +117,7 @@ const MyPatients = () => {
           <div className="text-6xl mb-4">👥</div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">No patients yet</h3>
           <p className="text-gray-500">
-            Patients will appear here once they grant you access to their records.
+            Ask your patients to grant access using your email address.
           </p>
         </div>
       ) : (

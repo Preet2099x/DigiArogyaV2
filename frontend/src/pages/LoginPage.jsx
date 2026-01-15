@@ -109,8 +109,8 @@ const LoginPage = () => {
             <span className="text-4xl">🏥</span>
             <span className="text-2xl font-bold text-emerald-600">DigiArogya</span>
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Welcome back</h2>
-          <p className="mt-2 text-gray-600">Sign in to access your health records</p>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">Patient & Doctor Login</h2>
+          <p className="mt-2 text-gray-600">Secure access to your health portal</p>
         </div>
 
         {/* Login Form */}

@@ -10,7 +10,7 @@ const Footer = () => {
               <span className="text-xl font-bold text-emerald-400">DigiArogya</span>
             </div>
             <p className="text-gray-400 mb-4 max-w-md">
-              A secure, consent-driven digital health records management system. 
+              A secure, consent-driven healthcare platform connecting patients and doctors.
               Your health data, your control.
             </p>
             <div className="flex space-x-4">

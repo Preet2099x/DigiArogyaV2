@@ -115,7 +115,10 @@ const DashboardLayout = ({ children }) => {
               {/* Logo */}
               <Link to="/dashboard" className="flex items-center space-x-2 ml-2 lg:ml-0">
                 <span className="text-2xl">🏥</span>
-                <span className="text-xl font-bold text-emerald-600">DigiArogya</span>
+                <div className="flex flex-col">
+                  <span className="text-xl font-bold text-emerald-600 leading-none">DigiArogya</span>
+                  <span className="text-xs text-gray-500 font-medium">Connected Health</span>
+                </div>
               </Link>
             </div>
 

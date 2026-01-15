@@ -94,7 +94,7 @@ const MyRecords = () => {
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Health Records</h1>
-          <p className="text-gray-600 mt-1">View all your medical records in one place</p>
+          <p className="text-gray-600 mt-1">Your secure timeline of medical history</p>
         </div>
         {records.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 flex items-center gap-3">
@@ -156,7 +156,7 @@ const MyRecords = () => {
           </h3>
           <p className="text-gray-500">
             {filterType === 'ALL' 
-              ? 'Your health records will appear here once a doctor adds them.'
+              ? 'Your secured health records will appear here once a doctor adds them.'
               : `No ${filterType.toLowerCase().replace('_', ' ')} records found. Try a different filter.`
             }
           </p>

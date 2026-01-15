@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">🏥 DigiArogya V2</h1>
   <p align="center">
-    <strong>A Secure, Consent-Driven Digital Health Records Management System</strong>
+    <strong>Connected Healthcare: A Patient-Doctor Digital Ecosystem</strong>
   </p>
   <p align="center">
     <a href="https://digiarogya.vercel.app">🚀 Live Demo</a> •
