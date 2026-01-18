@@ -20,6 +20,7 @@ import MyPatients from './pages/dashboard/doctor/MyPatients'
 import AddRecord from './pages/dashboard/doctor/AddRecord'
 import PatientRecords from './pages/dashboard/doctor/PatientRecords'
 import DoctorProfile from './pages/dashboard/doctor/Profile'
+import DoctorAccessHistory from './pages/dashboard/doctor/AccessHistory'
 
 // Layout component that conditionally shows Navbar/Footer
 const Layout = ({ children }) => {
@@ -113,6 +114,16 @@ function App() {
               <ProtectedRoute>
                 <DashboardLayout>
                   <DoctorProfile />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/doctor/access-history"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <DoctorAccessHistory />
                 </DashboardLayout>
               </ProtectedRoute>
             }

@@ -38,6 +38,9 @@ public class AuditLog {
     @Column(name = "details", length = 500)
     private String details;
 
+    @Column(name = "target_doctor_id")
+    private Long targetDoctorId;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -53,6 +56,14 @@ public class AuditLog {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getTargetDoctorId() {
+        return targetDoctorId;
+    }
+
+    public void setTargetDoctorId(Long targetDoctorId) {
+        this.targetDoctorId = targetDoctorId;
     }
 
     public Long getPatientId() {

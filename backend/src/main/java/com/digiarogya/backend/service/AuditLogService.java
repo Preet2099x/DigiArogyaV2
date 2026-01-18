@@ -25,6 +25,11 @@ public class AuditLogService {
     // Log an audit event
     public void logAudit(Long patientId, String patientName, Long actorId, String actorName, String actorRole, 
                         String action, Long recordId, String recordTitle, String details) {
+        logAudit(patientId, patientName, actorId, actorName, actorRole, action, recordId, recordTitle, details, null);
+    }
+
+    public void logAudit(Long patientId, String patientName, Long actorId, String actorName, String actorRole, 
+                        String action, Long recordId, String recordTitle, String details, Long targetDoctorId) {
         AuditLog log = new AuditLog();
         log.setPatientId(patientId);
         log.setPatientName(patientName);
@@ -35,6 +40,7 @@ public class AuditLogService {
         log.setRecordId(recordId);
         log.setRecordTitle(recordTitle);
         log.setDetails(details);
+        log.setTargetDoctorId(targetDoctorId);
         
         auditLogRepository.save(log);
     }
@@ -48,8 +54,8 @@ public class AuditLogService {
             // Patients see logs related to their records (by patientId)
             logPage = auditLogRepository.findByPatientIdOrderByCreatedAtDesc(userId, pageable);
         } else if ("DOCTOR".equals(role)) {
-            // Doctors see logs of their own actions (by actorId)
-            logPage = auditLogRepository.findByActorIdOrderByCreatedAtDesc(userId, pageable);
+            // Doctors see logs of their own actions OR actions where they are the target
+            logPage = auditLogRepository.findByActorIdOrTargetDoctorIdOrderByCreatedAtDesc(userId, userId, pageable);
         } else {
             throw new AccessDeniedException("Invalid role for viewing audit logs");
         }

@@ -196,7 +196,8 @@ public class RecordService {
             "ACCESS_GRANTED",
             null,
             null,
-            "Granted access to Dr. " + doctor.getName()
+            "Granted access to Dr. " + doctor.getName(),
+            doctor.getId()
         );
     }
 
@@ -324,7 +325,8 @@ public class RecordService {
                 "ACCESS_REVOKED",
                 null,
                 null,
-                "Revoked access from Dr. " + doctor.getName()
+                "Revoked access from Dr. " + doctor.getName(),
+                doctor.getId()
             );
         }
     }
@@ -362,7 +364,8 @@ public class RecordService {
                 "ACCESS_EXTENDED",
                 null,
                 null,
-                "Extended access for Dr. " + doctor.getName() + " by " + days + " days"
+                "Extended access for Dr. " + doctor.getName() + " by " + days + " days",
+                doctor.getId()
             );
         }
     }
