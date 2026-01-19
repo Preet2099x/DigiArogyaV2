@@ -47,7 +47,7 @@ If you prefer manual setup instead of using the blueprint:
    - **Name**: digiarogya-backend
    - **Runtime**: Java
    - **Build Command**: `cd backend && ./mvnw clean install -DskipTests`
-   - **Start Command**: `java -jar backend/target/backend-0.0.1-SNAPSHOT.jar`
+   - **Start Command**: `java -jar backend/target/backend-1.0.0.jar`
    - **Plan**: Free
 
 4. Add Environment Variables:
