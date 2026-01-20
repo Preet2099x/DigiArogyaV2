@@ -109,7 +109,7 @@ const LoginPage = () => {
             <span className="text-4xl">🏥</span>
             <span className="text-2xl font-bold text-emerald-600">DigiArogya</span>
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Patient & Doctor Login</h2>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">Login</h2>
           <p className="mt-2 text-gray-600">Secure access to your health portal</p>
         </div>
 

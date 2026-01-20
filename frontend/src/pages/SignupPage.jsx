@@ -161,7 +161,7 @@ const SignupPage = () => {
             <span className="text-2xl font-bold text-emerald-600">DigiArogya</span>
           </Link>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Join the Health Network</h2>
-          <p className="mt-2 text-gray-600">Create your secure patient or doctor account</p>
+          <p className="mt-2 text-gray-600">Create your account</p>
         </div>
 
         {/* Signup Form */}
