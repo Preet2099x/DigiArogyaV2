@@ -21,6 +21,8 @@ import AddRecord from './pages/dashboard/doctor/AddRecord'
 import PatientRecords from './pages/dashboard/doctor/PatientRecords'
 import DoctorProfile from './pages/dashboard/doctor/Profile'
 import DoctorAccessHistory from './pages/dashboard/doctor/AccessHistory'
+// Shared pages
+import Messages from './pages/dashboard/Messages'
 
 // Layout component that conditionally shows Navbar/Footer
 const Layout = ({ children }) => {
@@ -156,6 +158,18 @@ function App() {
               <ProtectedRoute>
                 <DashboardLayout>
                   <PatientRecords />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Messages Route (shared by patient and doctor) */}
+          <Route
+            path="/dashboard/messages"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Messages />
                 </DashboardLayout>
               </ProtectedRoute>
             }
