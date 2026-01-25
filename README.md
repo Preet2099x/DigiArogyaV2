@@ -10,12 +10,14 @@ A comprehensive electronic health records (EHR) management system designed for r
 - Grant time-limited access to doctors (e.g., 30 days)
 - View access history and audit logs
 - Revoke access at any time
+- **Real-time messaging** with doctors who have active access
 
 ### Doctor Features
 - Secure login
 - Request access to patient records
 - View granted patient records
 - Add and update medical records (with permission)
+- **Real-time messaging** with patients who have granted access
 
 ### Admin Features
 - User management (Doctors, Patients)
@@ -113,6 +115,13 @@ DigiArogyaV2/
 ### Access & Logs
 - `POST /api/access/grant` - Grant access to a doctor
 - `GET /api/audit-logs` - Get security audit trail
+
+### Messages
+- `POST /api/messages` - Send a message
+- `GET /api/messages/conversations` - Get all conversations
+- `GET /api/messages/conversation/{userId}` - Get messages with a specific user
+- `GET /api/messages/contacts` - Get list of users you can message
+- `GET /api/messages/unread-count` - Get unread message count
 
 ## Deployment
 
