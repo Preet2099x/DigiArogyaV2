@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { doctorApi } from '../../../services/api';
+import RecordDetailModal from '../../../components/RecordDetailModal';
 
 const PatientRecords = () => {
   const { patientId } = useParams();
@@ -8,6 +9,7 @@ const PatientRecords = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedRecord, setSelectedRecord] = useState(null);
   const [pagination, setPagination] = useState({
     currentPage: 0,
     totalPages: 0,
@@ -173,7 +175,8 @@ const PatientRecords = () => {
             {records.map((record) => (
               <div
                 key={record.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                onClick={() => setSelectedRecord(record)}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
@@ -203,6 +206,13 @@ const PatientRecords = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           {formatDate(record.createdAt)}
+                        </span>
+                        <span className="flex items-center gap-1 text-emerald-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          Click to view details
                         </span>
                       </div>
                     </div>
@@ -238,6 +248,13 @@ const PatientRecords = () => {
           )}
         </>
       )}
+
+      {/* Record Detail Modal */}
+      <RecordDetailModal
+        record={selectedRecord}
+        isOpen={!!selectedRecord}
+        onClose={() => setSelectedRecord(null)}
+      />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import com.digiarogya.backend.dto.PaginatedPatientResponse;
 import com.digiarogya.backend.dto.PaginatedRecordResponse;
 import com.digiarogya.backend.service.RecordService;
 import com.digiarogya.backend.dto.CreateRecordRequest;
+import com.digiarogya.backend.dto.CreateRecordResponse;
 
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -77,7 +78,7 @@ public class RecordController {
     }
 
     @PostMapping("/{patientId}")
-    public void addRecord(
+    public CreateRecordResponse addRecord(
             HttpServletRequest request,
             @PathVariable Long patientId,
             @RequestBody CreateRecordRequest body
@@ -85,12 +86,14 @@ public class RecordController {
         Long doctorId = Long.valueOf((String) request.getAttribute("userId"));
         String role = (String) request.getAttribute("role");
 
-        recordService.addRecord(
+        Long recordId = recordService.addRecord(
                 doctorId,
                 patientId,
                 role,
                 body
         );
+
+        return new CreateRecordResponse(recordId, "Record created successfully");
     }
 
     // =========================

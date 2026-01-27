@@ -79,6 +79,13 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- Azure Blob Storage -->
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-storage-blob</artifactId>
+			<version>12.25.1</version>
+		</dependency>
+
 	</dependencies>
 
 

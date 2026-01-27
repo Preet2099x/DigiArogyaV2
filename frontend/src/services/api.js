@@ -129,7 +129,7 @@ export const doctorApi = {
       const error = await getErrorMessage(response);
       throw new Error(error || 'Failed to add record');
     }
-    return true;
+    return response.json(); // Returns { recordId, message }
   },
 };
 
@@ -179,4 +179,57 @@ export const getAuditLogs = async (page = 0, size = 20) => {
   return response.json();
 };
 
-export default { recordsApi, doctorApi, userApi };
+// File Upload API
+export const fileApi = {
+  // Upload files to a record
+  uploadFiles: async (recordId, files) => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+
+    const response = await fetch(`${API_BASE}/files/upload/${recordId}`, {
+      method: 'POST',
+      headers: {
+        ...authService.getAuthHeader(),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await getErrorMessage(response);
+      throw new Error(error || 'Failed to upload files');
+    }
+    return response.json();
+  },
+
+  // Get download URL for a file
+  getDownloadUrl: async (attachmentId) => {
+    const response = await fetchWithAuth(`/files/download/${attachmentId}`);
+    if (!response.ok) {
+      throw new Error('Failed to get download URL');
+    }
+    return response.json();
+  },
+
+  // Get all attachments for a record
+  getRecordAttachments: async (recordId) => {
+    const response = await fetchWithAuth(`/files/record/${recordId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch attachments');
+    }
+    return response.json();
+  },
+
+  // Delete an attachment
+  deleteAttachment: async (attachmentId) => {
+    const response = await fetchWithAuth(`/files/${attachmentId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete attachment');
+    }
+  },
+};
+
+export default { recordsApi, doctorApi, userApi, fileApi };

@@ -1,15 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { doctorApi } from '../../../services/api';
+import { doctorApi, fileApi } from '../../../services/api';
 
 const AddRecord = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const patientIdFromUrl = searchParams.get('patientId');
+  const fileInputRef = useRef(null);
   
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingPatients, setLoadingPatients] = useState(true);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   
@@ -21,6 +23,8 @@ const AddRecord = () => {
     content: '',
   });
 
+  const [selectedFiles, setSelectedFiles] = useState([]);
+
   const recordTypes = [
     { value: 'NOTE', label: 'Note', icon: '📝', description: 'General clinical notes' },
     { value: 'DIAGNOSIS', label: 'Diagnosis', icon: '🩺', description: 'Medical diagnosis' },
@@ -30,6 +34,18 @@ const AddRecord = () => {
     { value: 'VITALS', label: 'Vitals', icon: '❤️', description: 'Blood pressure, heart rate, etc.' },
     { value: 'PROCEDURE', label: 'Procedure', icon: '🏥', description: 'Surgical or medical procedures' },
   ];
+
+  const allowedFileTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
+  ];
+
+  const maxFileSize = 50 * 1024 * 1024; // 50MB
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -62,6 +78,52 @@ const AddRecord = () => {
     }));
   };
 
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = [];
+    const errors = [];
+
+    files.forEach((file) => {
+      if (!allowedFileTypes.includes(file.type)) {
+        errors.push(`${file.name}: Invalid file type`);
+      } else if (file.size > maxFileSize) {
+        errors.push(`${file.name}: File too large (max 50MB)`);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (errors.length > 0) {
+      setError(errors.join(', '));
+    }
+
+    setSelectedFiles((prev) => [...prev, ...validFiles]);
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeFile = (index) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getFileIcon = (type) => {
+    if (type.startsWith('image/')) return '🖼️';
+    if (type === 'application/pdf') return '📄';
+    if (type.includes('word')) return '📝';
+    return '📎';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -85,12 +147,30 @@ const AddRecord = () => {
     setLoading(true);
 
     try {
-      await doctorApi.addRecord(formData.patientId, {
+      // First, create the record
+      const recordResponse = await doctorApi.addRecord(formData.patientId, {
         type: formData.type,
         title: formData.title,
         diagnosis: formData.diagnosis,
         content: formData.content,
       });
+
+      // If there are files to upload and we have a record ID
+      if (selectedFiles.length > 0 && recordResponse?.recordId) {
+        setUploadingFiles(true);
+        try {
+          await fileApi.uploadFiles(recordResponse.recordId, selectedFiles);
+        } catch (uploadErr) {
+          console.error('File upload failed:', uploadErr);
+          // Record was created but files failed - show partial success
+          setError('Record created but some files failed to upload: ' + uploadErr.message);
+          setLoading(false);
+          setUploadingFiles(false);
+          return;
+        }
+        setUploadingFiles(false);
+      }
+
       setSuccess(true);
       setFormData({
         patientId: patientIdFromUrl || '',
@@ -99,10 +179,12 @@ const AddRecord = () => {
         diagnosis: '',
         content: '',
       });
+      setSelectedFiles([]);
     } catch (err) {
       setError(err.message || 'Failed to add record. Please try again.');
     } finally {
       setLoading(false);
+      setUploadingFiles(false);
     }
   };
 
@@ -232,6 +314,90 @@ const AddRecord = () => {
               />
             </div>
 
+            {/* File Upload Section */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Attachments <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              
+              {/* Drop zone / Upload button */}
+              <div
+                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-emerald-400 transition-colors cursor-pointer"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-400"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <p className="mt-2 text-sm text-gray-600">
+                  <span className="font-semibold text-emerald-600">Click to upload</span> or drag and drop
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  PDF, Images, Word documents up to 50MB each
+                </p>
+              </div>
+
+              {/* Selected files list */}
+              {selectedFiles.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-sm font-medium text-gray-700">
+                    Selected files ({selectedFiles.length})
+                  </p>
+                  {selectedFiles.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between bg-gray-50 rounded-lg p-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{getFileIcon(file.type)}</span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 truncate max-w-xs">
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(index)}
+                        className="text-red-500 hover:text-red-700 p-1"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Submit */}
             <div className="flex gap-3">
               <button
@@ -252,7 +418,7 @@ const AddRecord = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Adding Record...
+                    {uploadingFiles ? 'Uploading Files...' : 'Adding Record...'}
                   </>
                 ) : (
                   <>

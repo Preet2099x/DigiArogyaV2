@@ -201,7 +201,7 @@ public class RecordService {
         );
     }
 
-    public void addRecord(
+    public Long addRecord(
             Long doctorId,
             Long patientId,
             String role,
@@ -244,6 +244,8 @@ public class RecordService {
             savedRecord.getTitle(),
             "Added new " + savedRecord.getType() + " record"
         );
+
+        return savedRecord.getId();
     }
 
     // =========================
