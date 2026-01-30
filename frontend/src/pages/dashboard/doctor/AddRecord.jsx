@@ -398,150 +398,134 @@ const AddRecord = () => {
                 </p>
               </div>
 
-              {/* Selected files list */}
+              {/* Selected files carousel */}
               {selectedFiles.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-sm font-medium text-gray-700 mb-3">
-                    Selected files ({selectedFiles.length})
-                  </p>
-                  
-                  {/* Image preview thumbnails */}
-                  {selectedFiles.some(f => f.type.startsWith('image/')) && (
-                    <div className="mb-4">
-                      <p className="text-xs font-medium text-gray-600 mb-2">Images</p>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                        {selectedFiles.map((file, index) => (
-                          file.type.startsWith('image/') && (
+                <div className="mt-4 bg-gradient-to-br from-emerald-50 to-blue-50 rounded-xl p-4 border border-emerald-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-emerald-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
+                        {selectedFiles.length}
+                      </div>
+                      <p className="text-sm font-semibold text-gray-800">
+                        {selectedFiles.length === 1 ? 'File Ready' : 'Files Ready'} to Upload
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedFiles([]);
+                        setFilePreviews({});
+                        setLoadingPreviews({});
+                      }}
+                      className="text-xs text-red-600 hover:text-red-800 font-medium"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+
+                  {/* Horizontal scrollable carousel */}
+                  <div className="relative">
+                    <div className="overflow-x-auto pb-2 -mx-2 px-2">
+                      <div className="flex gap-3" style={{ minWidth: 'min-content' }}>
+                        {selectedFiles.map((file, index) => {
+                          const isImage = file.type.startsWith('image/');
+                          const isPDF = file.type === 'application/pdf';
+                          
+                          return (
                             <div
                               key={`${file.name}-${index}`}
-                              className="relative group rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-400 transition-colors bg-gray-100"
+                              className="relative flex-shrink-0 w-36"
                             >
-                              {loadingPreviews[file.name] ? (
-                                <div className="w-full h-24 flex items-center justify-center bg-gray-100">
-                                  <svg className="animate-spin h-6 w-6 text-gray-400" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                  </svg>
-                                </div>
-                              ) : filePreviews[file.name] ? (
-                                <img
-                                  src={filePreviews[file.name]}
-                                  alt={file.name}
-                                  className="w-full h-24 object-cover"
-                                  onError={(e) => {
-                                    e.target.style.display = 'none';
-                                  }}
-                                />
-                              ) : (
-                                <div className="w-full h-24 flex items-center justify-center bg-gray-100">
-                                  <span className="text-2xl">🖼️</span>
-                                </div>
-                              )}
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
-                                <button
-                                  type="button"
-                                  onClick={() => removeFile(index)}
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6 text-white"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
+                              <div className="bg-white rounded-xl shadow-md overflow-hidden border-2 border-transparent hover:border-emerald-400 transition-all group">
+                                {/* File preview */}
+                                <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                  {isImage ? (
+                                    loadingPreviews[file.name] ? (
+                                      <div className="flex flex-col items-center gap-2">
+                                        <svg className="animate-spin h-8 w-8 text-emerald-500" viewBox="0 0 24 24">
+                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        <span className="text-xs text-gray-500">Loading...</span>
+                                      </div>
+                                    ) : filePreviews[file.name] ? (
+                                      <img
+                                        src={filePreviews[file.name]}
+                                        alt={file.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="flex flex-col items-center gap-1">
+                                        <span className="text-4xl">🖼️</span>
+                                        <span className="text-xs text-gray-500">Image</span>
+                                      </div>
+                                    )
+                                  ) : isPDF ? (
+                                    <div className="flex flex-col items-center gap-1">
+                                      <span className="text-4xl">📄</span>
+                                      <span className="text-xs font-medium text-red-600">PDF</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex flex-col items-center gap-1">
+                                      <span className="text-4xl">{getFileIcon(file.type)}</span>
+                                      <span className="text-xs text-gray-600">Document</span>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Remove button - top right corner */}
+                                  <button
+                                    type="button"
+                                    onClick={() => removeFile(index)}
+                                    className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                    title="Remove file"
                                   >
-                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                  </svg>
-                                </button>
-                              </div>
-                              <div className="absolute top-1 right-1 bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <p className="text-xs font-medium text-gray-700">{Math.round(file.size / 1024)} KB</p>
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  </button>
+
+                                  {/* File type badge */}
+                                  <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5">
+                                    <span className="text-xs font-medium text-gray-700">
+                                      {isImage ? '🖼️ IMG' : isPDF ? '📄 PDF' : '📎 DOC'}
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                {/* File info */}
+                                <div className="p-2 bg-white">
+                                  <p className="text-xs font-medium text-gray-800 truncate mb-0.5" title={file.name}>
+                                    {file.name}
+                                  </p>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-gray-500">{formatFileSize(file.size)}</span>
+                                    <span className="text-xs text-emerald-600 font-medium">✓ Ready</span>
+                                  </div>
+                                </div>
                               </div>
                             </div>
-                          )
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
-                  )}
-
-                  {/* PDF and other files preview */}
-                  {selectedFiles.some(f => f.type === 'application/pdf') && (
-                    <div className="mb-4">
-                      <p className="text-xs font-medium text-gray-600 mb-2">PDFs</p>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                        {selectedFiles.map((file, index) => (
-                          file.type === 'application/pdf' && (
-                            <div
-                              key={`${file.name}-${index}`}
-                              className="relative group rounded-lg overflow-hidden border border-gray-200 hover:border-red-400 transition-colors bg-gradient-to-br from-red-50 to-red-100"
-                            >
-                              <div className="w-full h-24 flex flex-col items-center justify-center p-2 text-center">
-                                <span className="text-3xl mb-1">📄</span>
-                                <p className="text-xs font-medium text-red-700 truncate px-1">{file.name.substring(0, 15)}...</p>
-                              </div>
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
-                                <button
-                                  type="button"
-                                  onClick={() => removeFile(index)}
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6 text-white"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                  >
-                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                  </svg>
-                                </button>
-                              </div>
-                              <div className="absolute top-1 right-1 bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <p className="text-xs font-medium text-gray-700">{Math.round(file.size / 1024)} KB</p>
-                              </div>
-                            </div>
-                          )
-                        ))}
+                    
+                    {/* Scroll hint */}
+                    {selectedFiles.length > 3 && (
+                      <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-emerald-50 to-transparent pointer-events-none flex items-center justify-end pr-1">
+                        <svg className="h-5 w-5 text-emerald-600 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Other files list */}
-                  <div className="space-y-2">
-                    {selectedFiles.map((file, index) => (
-                      !file.type.startsWith('image/') && (
-                        <div
-                          key={`${file.name}-${index}`}
-                          className="flex items-center justify-between bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors"
-                        >
-                          <div className="flex items-center gap-3 flex-1">
-                            <span className="text-2xl">{getFileIcon(file.type)}</span>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-700 truncate">
-                                {file.name}
-                              </p>
-                              <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeFile(index)}
-                            className="text-red-500 hover:text-red-700 p-1 flex-shrink-0"
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                      )
-                    ))}
+                    )}
                   </div>
                 </div>
               )}
