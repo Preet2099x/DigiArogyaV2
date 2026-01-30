@@ -26,6 +26,7 @@ const AddRecord = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [filePreviews, setFilePreviews] = useState({});
   const [uploadProgress, setUploadProgress] = useState({});
+  const [loadingPreviews, setLoadingPreviews] = useState({});
 
   const recordTypes = [
     { value: 'NOTE', label: 'Note', icon: '📝', description: 'General clinical notes' },
@@ -93,16 +94,37 @@ const AddRecord = () => {
       } else {
         validFiles.push(file);
         
-        // Generate preview for images
+        // Generate preview for images and PDFs
         if (file.type.startsWith('image/')) {
+          setLoadingPreviews((prev) => ({
+            ...prev,
+            [file.name]: true,
+          }));
+          
           const reader = new FileReader();
           reader.onload = (event) => {
             setFilePreviews((prev) => ({
               ...prev,
               [file.name]: event.target.result,
             }));
+            setLoadingPreviews((prev) => ({
+              ...prev,
+              [file.name]: false,
+            }));
+          };
+          reader.onerror = () => {
+            setLoadingPreviews((prev) => ({
+              ...prev,
+              [file.name]: false,
+            }));
           };
           reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf') {
+          // For PDFs, create a simple preview indicator
+          setFilePreviews((prev) => ({
+            ...prev,
+            [file.name]: 'pdf',
+          }));
         }
       }
     });
@@ -385,37 +407,100 @@ const AddRecord = () => {
                   
                   {/* Image preview thumbnails */}
                   {selectedFiles.some(f => f.type.startsWith('image/')) && (
-                    <div className="mb-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                      {selectedFiles.map((file, index) => (
-                        file.type.startsWith('image/') && (
-                          <div
-                            key={`${file.name}-${index}`}
-                            className="relative group rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-400 transition-colors"
-                          >
-                            <img
-                              src={filePreviews[file.name]}
-                              alt={file.name}
-                              className="w-full h-24 object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
-                              <button
-                                type="button"
-                                onClick={() => removeFile(index)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-6 w-6 text-white"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
+                    <div className="mb-4">
+                      <p className="text-xs font-medium text-gray-600 mb-2">Images</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {selectedFiles.map((file, index) => (
+                          file.type.startsWith('image/') && (
+                            <div
+                              key={`${file.name}-${index}`}
+                              className="relative group rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-400 transition-colors bg-gray-100"
+                            >
+                              {loadingPreviews[file.name] ? (
+                                <div className="w-full h-24 flex items-center justify-center bg-gray-100">
+                                  <svg className="animate-spin h-6 w-6 text-gray-400" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                  </svg>
+                                </div>
+                              ) : filePreviews[file.name] ? (
+                                <img
+                                  src={filePreviews[file.name]}
+                                  alt={file.name}
+                                  className="w-full h-24 object-cover"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-full h-24 flex items-center justify-center bg-gray-100">
+                                  <span className="text-2xl">🖼️</span>
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => removeFile(index)}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
-                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
-                              </button>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-6 w-6 text-white"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  </svg>
+                                </button>
+                              </div>
+                              <div className="absolute top-1 right-1 bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <p className="text-xs font-medium text-gray-700">{Math.round(file.size / 1024)} KB</p>
+                              </div>
                             </div>
-                          </div>
-                        )
-                      ))}
+                          )
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* PDF and other files preview */}
+                  {selectedFiles.some(f => f.type === 'application/pdf') && (
+                    <div className="mb-4">
+                      <p className="text-xs font-medium text-gray-600 mb-2">PDFs</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {selectedFiles.map((file, index) => (
+                          file.type === 'application/pdf' && (
+                            <div
+                              key={`${file.name}-${index}`}
+                              className="relative group rounded-lg overflow-hidden border border-gray-200 hover:border-red-400 transition-colors bg-gradient-to-br from-red-50 to-red-100"
+                            >
+                              <div className="w-full h-24 flex flex-col items-center justify-center p-2 text-center">
+                                <span className="text-3xl mb-1">📄</span>
+                                <p className="text-xs font-medium text-red-700 truncate px-1">{file.name.substring(0, 15)}...</p>
+                              </div>
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => removeFile(index)}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-6 w-6 text-white"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  </svg>
+                                </button>
+                              </div>
+                              <div className="absolute top-1 right-1 bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <p className="text-xs font-medium text-gray-700">{Math.round(file.size / 1024)} KB</p>
+                              </div>
+                            </div>
+                          )
+                        ))}
+                      </div>
                     </div>
                   )}
 
