@@ -121,11 +121,30 @@ const AddRecord = () => {
           };
           reader.readAsDataURL(file);
         } else if (file.type === 'application/pdf') {
-          // For PDFs, create a simple preview indicator
-          setFilePreviews((prev) => ({
+          // Generate PDF preview as blob URL
+          setLoadingPreviews((prev) => ({
             ...prev,
-            [file.name]: 'pdf',
+            [file.name]: true,
           }));
+          
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            setFilePreviews((prev) => ({
+              ...prev,
+              [file.name]: event.target.result,
+            }));
+            setLoadingPreviews((prev) => ({
+              ...prev,
+              [file.name]: false,
+            }));
+          };
+          reader.onerror = () => {
+            setLoadingPreviews((prev) => ({
+              ...prev,
+              [file.name]: false,
+            }));
+          };
+          reader.readAsDataURL(file);
         }
       }
     });
@@ -657,11 +676,21 @@ const AddRecord = () => {
                     </div>
                   ) : isPDF ? (
                     <div className="p-12 text-center bg-gradient-to-br from-red-50 to-red-100">
-                      <span className="text-8xl mb-4 block">📄</span>
-                      <h3 className="text-2xl font-bold text-gray-800 mb-2">PDF Document</h3>
-                      <p className="text-gray-600 mb-1">{file.name}</p>
-                      <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
-                      <p className="text-sm text-gray-600 mt-4">PDF preview will be available after upload</p>
+                      {filePreviews[file.name] ? (
+                        <iframe
+                          src={filePreviews[file.name]}
+                          className="w-full h-[70vh] border-0 rounded-lg shadow-lg"
+                          title={file.name}
+                        />
+                      ) : (
+                        <>
+                          <span className="text-8xl mb-4 block">📄</span>
+                          <h3 className="text-2xl font-bold text-gray-800 mb-2">PDF Document</h3>
+                          <p className="text-gray-600 mb-1">{file.name}</p>
+                          <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
+                          <p className="text-sm text-gray-600 mt-4">Loading PDF preview...</p>
+                        </>
+                      )}
                     </div>
                   ) : (
                     <div className="p-12 text-center bg-gray-50">
