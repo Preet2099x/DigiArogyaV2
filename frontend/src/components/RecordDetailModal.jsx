@@ -226,7 +226,7 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
                             <button
                               key={attachment.id}
                               onClick={() => handleViewImage(attachment)}
-                              disabled={loadingDownload === attachment.id || !thumbnails[attachment.id]}
+                              disabled={loadingDownload === attachment.id}
                               className="relative group rounded-lg overflow-hidden border-2 border-gray-200 hover:border-emerald-400 transition-all disabled:opacity-50 bg-gray-100"
                             >
                               {thumbnails[attachment.id] ? (
@@ -234,11 +234,19 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
                                   <img
                                     src={thumbnails[attachment.id]}
                                     alt={attachment.fileName}
+                                    crossOrigin="anonymous"
                                     className="w-full h-24 object-cover group-hover:scale-105 transition-transform"
+                                    onLoad={(e) => {
+                                      e.target.style.backgroundColor = 'transparent';
+                                    }}
                                     onError={(e) => {
-                                      console.error('Image load error:', attachment.fileName);
-                                      e.target.style.display = 'none';
-                                      e.target.parentElement.innerHTML = '<div class="w-full h-24 flex flex-col items-center justify-center bg-red-50"><span class="text-2xl">⚠️</span><span class="text-xs text-red-600">Failed to load</span></div>';
+                                      console.error('Image load error:', attachment.fileName, thumbnails[attachment.id]);
+                                      // Try with blobUrl as fallback
+                                      if (attachment.blobUrl && e.target.src !== attachment.blobUrl) {
+                                        e.target.src = attachment.blobUrl;
+                                      } else {
+                                        e.target.style.display = 'none';
+                                      }
                                     }}
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center transition-all">
@@ -370,7 +378,11 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
             <img
               src={previewImage.url}
               alt={previewImage.name}
+              crossOrigin="anonymous"
               className="max-w-full max-h-[85vh] object-contain rounded-lg"
+              onError={(e) => {
+                console.error('Preview image load error:', previewImage.url);
+              }}
             />
             <p className="text-center text-white mt-2">{previewImage.name}</p>
           </div>
