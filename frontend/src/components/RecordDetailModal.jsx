@@ -16,13 +16,15 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
 
   const fetchAttachments = async () => {
     setLoadingAttachments(true);
+    setThumbnails({}); // Reset thumbnails
     try {
       const data = await fileApi.getRecordAttachments(record.id);
       setAttachments(data || []);
       
-      // Load thumbnails for images
-      data?.forEach(async (attachment) => {
-        if (attachment.fileType?.startsWith('image/')) {
+      // Load thumbnails for images - wait for all to load
+      if (data && data.length > 0) {
+        const imageAttachments = data.filter(a => a.fileType?.startsWith('image/'));
+        for (const attachment of imageAttachments) {
           try {
             const { downloadUrl } = await fileApi.getDownloadUrl(attachment.id);
             setThumbnails((prev) => ({
@@ -30,10 +32,10 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
               [attachment.id]: downloadUrl,
             }));
           } catch (err) {
-            console.error('Failed to load thumbnail:', err);
+            console.error('Failed to load thumbnail for:', attachment.fileName, err);
           }
         }
-      });
+      }
     } catch (err) {
       console.error('Failed to load attachments:', err);
       setAttachments([]);
@@ -224,36 +226,44 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
                             <button
                               key={attachment.id}
                               onClick={() => handleViewImage(attachment)}
-                              disabled={loadingDownload === attachment.id}
-                              className="relative group rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-400 transition-all disabled:opacity-50 bg-gray-100"
+                              disabled={loadingDownload === attachment.id || !thumbnails[attachment.id]}
+                              className="relative group rounded-lg overflow-hidden border-2 border-gray-200 hover:border-emerald-400 transition-all disabled:opacity-50 bg-gray-100"
                             >
                               {thumbnails[attachment.id] ? (
-                                <img
-                                  src={thumbnails[attachment.id]}
-                                  alt={attachment.fileName}
-                                  className="w-full h-24 object-cover group-hover:scale-110 transition-transform"
-                                  onError={(e) => {
-                                    e.target.style.display = 'none';
-                                  }}
-                                />
+                                <>
+                                  <img
+                                    src={thumbnails[attachment.id]}
+                                    alt={attachment.fileName}
+                                    className="w-full h-24 object-cover group-hover:scale-105 transition-transform"
+                                    onError={(e) => {
+                                      console.error('Image load error:', attachment.fileName);
+                                      e.target.style.display = 'none';
+                                      e.target.parentElement.innerHTML = '<div class="w-full h-24 flex flex-col items-center justify-center bg-red-50"><span class="text-2xl">⚠️</span><span class="text-xs text-red-600">Failed to load</span></div>';
+                                    }}
+                                  />
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center transition-all">
+                                    {loadingDownload === attachment.id ? (
+                                      <svg className="animate-spin h-6 w-6 text-white" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                      </svg>
+                                    ) : (
+                                      <svg className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                      </svg>
+                                    )}
+                                  </div>
+                                </>
                               ) : (
-                                <div className="w-full h-24 flex items-center justify-center bg-gray-100">
-                                  <span className="text-2xl animate-pulse">🖼️</span>
-                                </div>
-                              )}
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center transition-all">
-                                {loadingDownload === attachment.id ? (
-                                  <svg className="animate-spin h-6 w-6 text-white" viewBox="0 0 24 24">
+                                <div className="w-full h-24 flex flex-col items-center justify-center bg-gray-100">
+                                  <svg className="animate-spin h-6 w-6 text-emerald-500 mb-1" viewBox="0 0 24 24">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                   </svg>
-                                ) : (
-                                  <svg className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                  </svg>
-                                )}
-                              </div>
+                                  <span className="text-xs text-gray-500">Loading...</span>
+                                </div>
+                              )}
                             </button>
                           )
                         ))}

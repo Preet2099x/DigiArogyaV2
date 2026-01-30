@@ -27,6 +27,7 @@ const AddRecord = () => {
   const [filePreviews, setFilePreviews] = useState({});
   const [uploadProgress, setUploadProgress] = useState({});
   const [loadingPreviews, setLoadingPreviews] = useState({});
+  const [previewModal, setPreviewModal] = useState({ isOpen: false, index: 0 });
 
   const recordTypes = [
     { value: 'NOTE', label: 'Note', icon: '📝', description: 'General clinical notes' },
@@ -436,7 +437,10 @@ const AddRecord = () => {
                               key={`${file.name}-${index}`}
                               className="relative flex-shrink-0 w-36"
                             >
-                              <div className="bg-white rounded-xl shadow-md overflow-hidden border-2 border-transparent hover:border-emerald-400 transition-all group">
+                              <div 
+                                className="bg-white rounded-xl shadow-md overflow-hidden border-2 border-transparent hover:border-emerald-400 transition-all group cursor-pointer"
+                                onClick={() => setPreviewModal({ isOpen: true, index })}
+                              >
                                 {/* File preview */}
                                 <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                   {isImage ? (
@@ -449,11 +453,20 @@ const AddRecord = () => {
                                         <span className="text-xs text-gray-500">Loading...</span>
                                       </div>
                                     ) : filePreviews[file.name] ? (
-                                      <img
-                                        src={filePreviews[file.name]}
-                                        alt={file.name}
-                                        className="w-full h-full object-cover"
-                                      />
+                                      <>
+                                        <img
+                                          src={filePreviews[file.name]}
+                                          alt={file.name}
+                                          className="w-full h-full object-cover"
+                                        />
+                                        {/* View overlay on hover */}
+                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
+                                          <svg className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                          </svg>
+                                        </div>
+                                      </>
                                     ) : (
                                       <div className="flex flex-col items-center gap-1">
                                         <span className="text-4xl">🖼️</span>
@@ -461,21 +474,42 @@ const AddRecord = () => {
                                       </div>
                                     )
                                   ) : isPDF ? (
-                                    <div className="flex flex-col items-center gap-1">
-                                      <span className="text-4xl">📄</span>
-                                      <span className="text-xs font-medium text-red-600">PDF</span>
-                                    </div>
+                                    <>
+                                      <div className="flex flex-col items-center gap-1">
+                                        <span className="text-4xl">📄</span>
+                                        <span className="text-xs font-medium text-red-600">PDF</span>
+                                      </div>
+                                      {/* View overlay on hover */}
+                                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
+                                        <svg className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                      </div>
+                                    </>
                                   ) : (
-                                    <div className="flex flex-col items-center gap-1">
-                                      <span className="text-4xl">{getFileIcon(file.type)}</span>
-                                      <span className="text-xs text-gray-600">Document</span>
-                                    </div>
+                                    <>
+                                      <div className="flex flex-col items-center gap-1">
+                                        <span className="text-4xl">{getFileIcon(file.type)}</span>
+                                        <span className="text-xs text-gray-600">Document</span>
+                                      </div>
+                                      {/* View overlay on hover */}
+                                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
+                                        <svg className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                      </div>
+                                    </>
                                   )}
                                   
                                   {/* Remove button - top right corner */}
                                   <button
                                     type="button"
-                                    onClick={() => removeFile(index)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      removeFile(index);
+                                    }}
                                     className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
                                     title="Remove file"
                                   >
@@ -566,6 +600,107 @@ const AddRecord = () => {
           </form>
         </div>
       </div>
+
+      {/* File Preview Modal */}
+      {previewModal.isOpen && selectedFiles[previewModal.index] && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90">
+          {/* Close button */}
+          <button
+            onClick={() => setPreviewModal({ isOpen: false, index: 0 })}
+            className="absolute top-4 right-4 p-2 bg-white rounded-full hover:bg-gray-100 transition-colors z-10"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {/* Navigation - Previous */}
+          {previewModal.index > 0 && (
+            <button
+              onClick={() => setPreviewModal(prev => ({ ...prev, index: prev.index - 1 }))}
+              className="absolute left-4 p-3 bg-white rounded-full hover:bg-gray-100 transition-colors z-10"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Navigation - Next */}
+          {previewModal.index < selectedFiles.length - 1 && (
+            <button
+              onClick={() => setPreviewModal(prev => ({ ...prev, index: prev.index + 1 }))}
+              className="absolute right-4 p-3 bg-white rounded-full hover:bg-gray-100 transition-colors z-10"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
+
+          {/* File preview content */}
+          <div className="max-w-5xl max-h-[90vh] p-4 w-full">
+            {(() => {
+              const file = selectedFiles[previewModal.index];
+              const isImage = file.type.startsWith('image/');
+              const isPDF = file.type === 'application/pdf';
+
+              return (
+                <div className="bg-white rounded-lg overflow-hidden">
+                  {isImage ? (
+                    <div className="flex items-center justify-center bg-gray-100">
+                      <img
+                        src={filePreviews[file.name]}
+                        alt={file.name}
+                        className="max-w-full max-h-[80vh] object-contain"
+                      />
+                    </div>
+                  ) : isPDF ? (
+                    <div className="p-12 text-center bg-gradient-to-br from-red-50 to-red-100">
+                      <span className="text-8xl mb-4 block">📄</span>
+                      <h3 className="text-2xl font-bold text-gray-800 mb-2">PDF Document</h3>
+                      <p className="text-gray-600 mb-1">{file.name}</p>
+                      <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
+                      <p className="text-sm text-gray-600 mt-4">PDF preview will be available after upload</p>
+                    </div>
+                  ) : (
+                    <div className="p-12 text-center bg-gray-50">
+                      <span className="text-8xl mb-4 block">{getFileIcon(file.type)}</span>
+                      <h3 className="text-2xl font-bold text-gray-800 mb-2">Document</h3>
+                      <p className="text-gray-600 mb-1">{file.name}</p>
+                      <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
+                    </div>
+                  )}
+                  
+                  {/* File info bar */}
+                  <div className="bg-gray-800 text-white p-4 flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{file.name}</p>
+                      <p className="text-sm text-gray-300">
+                        {formatFileSize(file.size)} • File {previewModal.index + 1} of {selectedFiles.length}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        removeFile(previewModal.index);
+                        if (previewModal.index >= selectedFiles.length - 1) {
+                          setPreviewModal({ isOpen: false, index: 0 });
+                        }
+                      }}
+                      className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
