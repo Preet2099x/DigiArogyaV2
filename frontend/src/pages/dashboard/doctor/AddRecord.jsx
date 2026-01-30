@@ -24,6 +24,8 @@ const AddRecord = () => {
   });
 
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [filePreviews, setFilePreviews] = useState({});
+  const [uploadProgress, setUploadProgress] = useState({});
 
   const recordTypes = [
     { value: 'NOTE', label: 'Note', icon: '📝', description: 'General clinical notes' },
@@ -90,6 +92,18 @@ const AddRecord = () => {
         errors.push(`${file.name}: File too large (max 50MB)`);
       } else {
         validFiles.push(file);
+        
+        // Generate preview for images
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            setFilePreviews((prev) => ({
+              ...prev,
+              [file.name]: event.target.result,
+            }));
+          };
+          reader.readAsDataURL(file);
+        }
       }
     });
 
@@ -106,7 +120,15 @@ const AddRecord = () => {
   };
 
   const removeFile = (index) => {
+    const fileName = selectedFiles[index]?.name;
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    if (fileName) {
+      setFilePreviews((prev) => {
+        const newPreviews = { ...prev };
+        delete newPreviews[fileName];
+        return newPreviews;
+      });
+    }
   };
 
   const formatFileSize = (bytes) => {
@@ -356,44 +378,86 @@ const AddRecord = () => {
 
               {/* Selected files list */}
               {selectedFiles.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <p className="text-sm font-medium text-gray-700">
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-700 mb-3">
                     Selected files ({selectedFiles.length})
                   </p>
-                  {selectedFiles.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between bg-gray-50 rounded-lg p-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{getFileIcon(file.type)}</span>
-                        <div>
-                          <p className="text-sm font-medium text-gray-700 truncate max-w-xs">
-                            {file.name}
-                          </p>
-                          <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeFile(index)}
-                        className="text-red-500 hover:text-red-700 p-1"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
+                  
+                  {/* Image preview thumbnails */}
+                  {selectedFiles.some(f => f.type.startsWith('image/')) && (
+                    <div className="mb-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {selectedFiles.map((file, index) => (
+                        file.type.startsWith('image/') && (
+                          <div
+                            key={`${file.name}-${index}`}
+                            className="relative group rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-400 transition-colors"
+                          >
+                            <img
+                              src={filePreviews[file.name]}
+                              alt={file.name}
+                              className="w-full h-24 object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
+                              <button
+                                type="button"
+                                onClick={() => removeFile(index)}
+                                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-6 w-6 text-white"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        )
+                      ))}
                     </div>
-                  ))}
+                  )}
+
+                  {/* Other files list */}
+                  <div className="space-y-2">
+                    {selectedFiles.map((file, index) => (
+                      !file.type.startsWith('image/') && (
+                        <div
+                          key={`${file.name}-${index}`}
+                          className="flex items-center justify-between bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 flex-1">
+                            <span className="text-2xl">{getFileIcon(file.type)}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-700 truncate">
+                                {file.name}
+                              </p>
+                              <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeFile(index)}
+                            className="text-red-500 hover:text-red-700 p-1 flex-shrink-0"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      )
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

@@ -6,6 +6,7 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
   const [loadingAttachments, setLoadingAttachments] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [thumbnails, setThumbnails] = useState({});
 
   useEffect(() => {
     if (isOpen && record?.id) {
@@ -18,6 +19,21 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
     try {
       const data = await fileApi.getRecordAttachments(record.id);
       setAttachments(data || []);
+      
+      // Load thumbnails for images
+      data?.forEach(async (attachment) => {
+        if (attachment.fileType?.startsWith('image/')) {
+          try {
+            const { downloadUrl } = await fileApi.getDownloadUrl(attachment.id);
+            setThumbnails((prev) => ({
+              ...prev,
+              [attachment.id]: downloadUrl,
+            }));
+          } catch (err) {
+            console.error('Failed to load thumbnail:', err);
+          }
+        }
+      });
     } catch (err) {
       console.error('Failed to load attachments:', err);
       setAttachments([]);
@@ -197,59 +213,92 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
                   <p className="text-gray-500">No attachments for this record</p>
                 </div>
               ) : (
-                <div className="grid gap-3">
-                  {attachments.map((attachment) => (
-                    <div
-                      key={attachment.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xl">{getFileIcon(attachment.fileType)}</span>
-                        <div>
-                          <p className="font-medium text-gray-900">{attachment.fileName}</p>
-                          <p className="text-sm text-gray-500">{formatFileSize(attachment.fileSize)}</p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        {attachment.fileType?.startsWith('image/') && (
-                          <button
-                            onClick={() => handleViewImage(attachment)}
-                            disabled={loadingDownload === attachment.id}
-                            className="px-3 py-2 text-sm font-medium text-emerald-700 bg-emerald-100 rounded-lg hover:bg-emerald-200 transition-colors disabled:opacity-50"
-                          >
-                            {loadingDownload === attachment.id ? (
-                              <span className="flex items-center gap-1">
-                                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                </svg>
-                                Loading...
-                              </span>
-                            ) : (
-                              <>👁️ View</>
-                            )}
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDownload(attachment)}
-                          disabled={loadingDownload === attachment.id}
-                          className="px-3 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors disabled:opacity-50"
-                        >
-                          {loadingDownload === attachment.id && !attachment.fileType?.startsWith('image/') ? (
-                            <span className="flex items-center gap-1">
-                              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                              </svg>
-                              ...
-                            </span>
-                          ) : (
-                            <>⬇️ Download</>
-                          )}
-                        </button>
+                <div>
+                  {/* Image thumbnails grid */}
+                  {attachments.some(a => a.fileType?.startsWith('image/')) && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-600 mb-2">Images</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+                        {attachments.map((attachment) => (
+                          attachment.fileType?.startsWith('image/') && (
+                            <button
+                              key={attachment.id}
+                              onClick={() => handleViewImage(attachment)}
+                              disabled={loadingDownload === attachment.id}
+                              className="relative group rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-400 transition-all disabled:opacity-50"
+                            >
+                              {thumbnails[attachment.id] ? (
+                                <img
+                                  src={thumbnails[attachment.id]}
+                                  alt={attachment.fileName}
+                                  className="w-full h-24 object-cover group-hover:scale-110 transition-transform"
+                                />
+                              ) : (
+                                <div className="w-full h-24 bg-gray-100 flex items-center justify-center">
+                                  <span className="text-2xl animate-pulse">🖼️</span>
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center transition-all">
+                                {loadingDownload === attachment.id ? (
+                                  <svg className="animate-spin h-6 w-6 text-white" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                  </svg>
+                                ) : (
+                                  <svg className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                )}
+                              </div>
+                            </button>
+                          )
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  )}
+
+                  {/* Other files list */}
+                  {attachments.some(a => !a.fileType?.startsWith('image/')) && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-600 mb-2">Other Files</p>
+                      <div className="space-y-2">
+                        {attachments.map((attachment) => (
+                          !attachment.fileType?.startsWith('image/') && (
+                            <div
+                              key={attachment.id}
+                              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                            >
+                              <div className="flex items-center gap-3 flex-1">
+                                <span className="text-3xl">{getFileIcon(attachment.fileType)}</span>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-gray-900 truncate">{attachment.fileName}</p>
+                                  <p className="text-sm text-gray-500">{formatFileSize(attachment.fileSize)}</p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => handleDownload(attachment)}
+                                disabled={loadingDownload === attachment.id}
+                                className="px-3 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors disabled:opacity-50 flex-shrink-0"
+                              >
+                                {loadingDownload === attachment.id ? (
+                                  <span className="flex items-center gap-1">
+                                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                    </svg>
+                                    ...
+                                  </span>
+                                ) : (
+                                  <>⬇️ Download</>
+                                )}
+                              </button>
+                            </div>
+                          )
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
