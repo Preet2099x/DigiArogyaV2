@@ -398,16 +398,16 @@ const AddRecord = () => {
                 </p>
               </div>
 
-              {/* Selected files list */}
+              {/* Selected files carousel */}
               {selectedFiles.length > 0 && (
-                <div className="mt-4 bg-white rounded-xl border border-gray-200 overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+                <div className="mt-4 bg-gradient-to-br from-emerald-50 to-blue-50 rounded-xl p-4 border border-emerald-200">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <div className="bg-emerald-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">
                         {selectedFiles.length}
                       </div>
                       <p className="text-sm font-semibold text-gray-800">
-                        {selectedFiles.length === 1 ? 'File' : 'Files'} Ready to Upload
+                        {selectedFiles.length === 1 ? 'File Ready' : 'Files Ready'} to Upload
                       </p>
                     </div>
                     <button
@@ -423,98 +423,110 @@ const AddRecord = () => {
                     </button>
                   </div>
 
-                  {/* File list */}
-                  <ul className="divide-y divide-gray-100">
-                    {selectedFiles.map((file, index) => {
-                      const isImage = file.type.startsWith('image/');
-                      const isPDF = file.type === 'application/pdf';
-                      const isWord = file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx');
-                      const isText = file.type === 'text/plain' || file.name.endsWith('.txt');
-                      
-                      // Get icon and color based on file type
-                      let icon, bgColor, textColor;
-                      if (isPDF) {
-                        icon = (
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM8.5 13a1 1 0 0 1 1-1h.5V9.5a.5.5 0 0 1 1 0V12h.5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z"/>
-                          </svg>
-                        );
-                        bgColor = 'bg-red-100';
-                        textColor = 'text-red-600';
-                      } else if (isImage) {
-                        icon = (
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                          </svg>
-                        );
-                        bgColor = 'bg-blue-100';
-                        textColor = 'text-blue-600';
-                      } else if (isWord) {
-                        icon = (
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM7 17v-4h1.5l1 2.5 1-2.5H12v4h-1v-2.5l-.75 2h-.5l-.75-2V17H7z"/>
-                          </svg>
-                        );
-                        bgColor = 'bg-blue-100';
-                        textColor = 'text-blue-700';
-                      } else if (isText) {
-                        icon = (
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM7 10h10v2H7v-2zm0 4h10v2H7v-2z"/>
-                          </svg>
-                        );
-                        bgColor = 'bg-gray-100';
-                        textColor = 'text-gray-600';
-                      } else {
-                        icon = (
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4z"/>
-                          </svg>
-                        );
-                        bgColor = 'bg-gray-100';
-                        textColor = 'text-gray-600';
-                      }
-                      
-                      return (
-                        <li
-                          key={`${file.name}-${index}`}
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                        >
-                          {/* File icon */}
-                          <div className={`flex-shrink-0 w-10 h-10 ${bgColor} ${textColor} rounded-lg flex items-center justify-center`}>
-                            {icon}
-                          </div>
+                  {/* Horizontal scrollable carousel */}
+                  <div className="relative">
+                    <div className="overflow-x-auto pb-2 -mx-2 px-2">
+                      <div className="flex gap-3" style={{ minWidth: 'min-content' }}>
+                        {selectedFiles.map((file, index) => {
+                          const isImage = file.type.startsWith('image/');
+                          const isPDF = file.type === 'application/pdf';
                           
-                          {/* File info */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate" title={file.name}>
-                              {file.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {formatFileSize(file.size)} • {isPDF ? 'PDF' : isImage ? 'Image' : isWord ? 'Word' : isText ? 'Text' : 'Document'}
-                            </p>
-                          </div>
-                          
-                          {/* Ready badge */}
-                          <span className="flex-shrink-0 text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-1 rounded-full">
-                            ✓ Ready
-                          </span>
-                          
-                          {/* Delete button */}
-                          <button
-                            type="button"
-                            onClick={() => removeFile(index)}
-                            className="flex-shrink-0 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Remove file"
-                          >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                          return (
+                            <div
+                              key={`${file.name}-${index}`}
+                              className="relative flex-shrink-0 w-36"
+                            >
+                              <div className="bg-white rounded-xl shadow-md overflow-hidden border-2 border-transparent hover:border-emerald-400 transition-all group">
+                                {/* File preview */}
+                                <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                  {isImage ? (
+                                    loadingPreviews[file.name] ? (
+                                      <div className="flex flex-col items-center gap-2">
+                                        <svg className="animate-spin h-8 w-8 text-emerald-500" viewBox="0 0 24 24">
+                                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                        </svg>
+                                        <span className="text-xs text-gray-500">Loading...</span>
+                                      </div>
+                                    ) : filePreviews[file.name] ? (
+                                      <img
+                                        src={filePreviews[file.name]}
+                                        alt={file.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="flex flex-col items-center gap-1">
+                                        <span className="text-4xl">🖼️</span>
+                                        <span className="text-xs text-gray-500">Image</span>
+                                      </div>
+                                    )
+                                  ) : isPDF ? (
+                                    <div className="flex flex-col items-center gap-1">
+                                      <span className="text-4xl">📄</span>
+                                      <span className="text-xs font-medium text-red-600">PDF</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex flex-col items-center gap-1">
+                                      <span className="text-4xl">{getFileIcon(file.type)}</span>
+                                      <span className="text-xs text-gray-600">Document</span>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Remove button - top right corner */}
+                                  <button
+                                    type="button"
+                                    onClick={() => removeFile(index)}
+                                    className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                    title="Remove file"
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-4 w-4"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  </button>
+
+                                  {/* File type badge */}
+                                  <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5">
+                                    <span className="text-xs font-medium text-gray-700">
+                                      {isImage ? '🖼️ IMG' : isPDF ? '📄 PDF' : '📎 DOC'}
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                {/* File info */}
+                                <div className="p-2 bg-white">
+                                  <p className="text-xs font-medium text-gray-800 truncate mb-0.5" title={file.name}>
+                                    {file.name}
+                                  </p>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-gray-500">{formatFileSize(file.size)}</span>
+                                    <span className="text-xs text-emerald-600 font-medium">✓ Ready</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    
+                    {/* Scroll hint */}
+                    {selectedFiles.length > 3 && (
+                      <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-emerald-50 to-transparent pointer-events-none flex items-center justify-end pr-1">
+                        <svg className="h-5 w-5 text-emerald-600 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
