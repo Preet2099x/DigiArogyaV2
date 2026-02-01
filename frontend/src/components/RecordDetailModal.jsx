@@ -5,7 +5,7 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
   const [attachments, setAttachments] = useState([]);
   const [loadingAttachments, setLoadingAttachments] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(null);
-  const [previewImage, setPreviewImage] = useState(null);
+  const [previewFile, setPreviewFile] = useState(null);
   const [thumbnails, setThumbnails] = useState({});
 
   useEffect(() => {
@@ -46,12 +46,16 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
     setLoadingDownload(attachment.id);
     try {
       const { downloadUrl, fileName } = await fileApi.getDownloadUrl(attachment.id);
-      
-      // Open in new tab for images, download for others
-      if (attachment.fileType?.startsWith('image/')) {
-        setPreviewImage({ url: downloadUrl, name: fileName });
+      if (attachment.fileType?.startsWith('image/') || attachment.fileType === 'application/pdf') {
+        setPreviewFile({ url: downloadUrl, name: fileName, type: attachment.fileType });
       } else {
-        window.open(downloadUrl, '_blank');
+        // Download for other files
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
     } catch (err) {
       console.error('Failed to get download URL:', err);
@@ -65,7 +69,7 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
     setLoadingDownload(attachment.id);
     try {
       const { downloadUrl, fileName } = await fileApi.getDownloadUrl(attachment.id);
-      setPreviewImage({ url: downloadUrl, name: fileName });
+      setPreviewFile({ url: downloadUrl, name: fileName, type: attachment.fileType });
     } catch (err) {
       console.error('Failed to load image:', err);
       alert('Failed to load image');
@@ -346,23 +350,39 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
       </div>
 
       {/* Image Preview Modal */}
-      {previewImage && (
+      {previewFile && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-90">
           <button
-            onClick={() => setPreviewImage(null)}
+            onClick={() => setPreviewFile(null)}
             className="absolute top-4 right-4 p-2 bg-white rounded-full hover:bg-gray-100 transition-colors z-10"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          <div className="max-w-5xl max-h-[90vh] p-4">
-            <img
-              src={previewImage.url}
-              alt={previewImage.name}
-              className="max-w-full max-h-[85vh] object-contain rounded-lg"
-            />
-            <p className="text-center text-white mt-2">{previewImage.name}</p>
+          <div className="max-w-5xl max-h-[90vh] p-4 bg-white rounded-xl shadow-xl flex flex-col items-center justify-center">
+            {previewFile.type && previewFile.type.startsWith('image/') ? (
+              <img
+                src={previewFile.url}
+                alt={previewFile.name}
+                className="max-w-full max-h-[75vh] object-contain rounded-lg"
+              />
+            ) : previewFile.type === 'application/pdf' ? (
+              <iframe
+                src={previewFile.url}
+                title={previewFile.name}
+                className="w-[80vw] max-w-3xl h-[75vh] bg-gray-50 rounded-lg"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 gap-4">
+                <div className="text-6xl">{getFileIcon(previewFile.type)}</div>
+                <p className="text-gray-600 text-center">
+                  <span className="font-semibold">{previewFile.name}</span> is ready to download.<br />
+                  Preview not available for this file type.
+                </p>
+              </div>
+            )}
+            <p className="text-center text-gray-800 mt-2">{previewFile.name}</p>
           </div>
         </div>
       )}
