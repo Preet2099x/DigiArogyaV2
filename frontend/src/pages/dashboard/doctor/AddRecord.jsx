@@ -27,6 +27,7 @@ const AddRecord = () => {
   const [filePreviews, setFilePreviews] = useState({});
   const [uploadProgress, setUploadProgress] = useState({});
   const [loadingPreviews, setLoadingPreviews] = useState({});
+  const [viewingFile, setViewingFile] = useState(null);
 
   const recordTypes = [
     { value: 'NOTE', label: 'Note', icon: '📝', description: 'General clinical notes' },
@@ -153,6 +154,10 @@ const AddRecord = () => {
     }
   };
 
+  const openFile = (file) => {
+    setViewingFile(file);
+  };
+
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -234,6 +239,54 @@ const AddRecord = () => {
 
   return (
     <div>
+      {/* File Viewer Modal */}
+      {viewingFile && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
+            {/* Modal header */}
+            <div className="sticky top-0 flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">{viewingFile.name}</h3>
+                <p className="text-sm text-gray-500">{formatFileSize(viewingFile.size)}</p>
+              </div>
+              <button
+                onClick={() => setViewingFile(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Modal content */}
+            <div className="p-6">
+              {viewingFile.type.startsWith('image/') ? (
+                <img 
+                  src={filePreviews[viewingFile.name] || URL.createObjectURL(viewingFile)} 
+                  alt={viewingFile.name}
+                  className="w-full max-h-[70vh] object-contain"
+                />
+              ) : viewingFile.type === 'application/pdf' ? (
+                <iframe
+                  src={URL.createObjectURL(viewingFile)}
+                  className="w-full h-[70vh]"
+                  title={viewingFile.name}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 gap-4">
+                  <div className="text-6xl">{getFileIcon(viewingFile.type)}</div>
+                  <p className="text-gray-600 text-center">
+                    <span className="font-semibold">{viewingFile.name}</span> is ready to upload. <br />
+                    Preview not available for this file type.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Add Medical Record</h1>
@@ -436,7 +489,10 @@ const AddRecord = () => {
                               key={`${file.name}-${index}`}
                               className="relative flex-shrink-0 w-36"
                             >
-                              <div className="bg-white rounded-xl shadow-md overflow-hidden border-2 border-transparent hover:border-emerald-400 transition-all group">
+                              <div 
+                                onClick={() => openFile(file)}
+                                className="bg-white rounded-xl shadow-md overflow-hidden border-2 border-transparent hover:border-emerald-400 transition-all group cursor-pointer"
+                              >
                                 {/* File preview */}
                                 <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                   {isImage ? (
