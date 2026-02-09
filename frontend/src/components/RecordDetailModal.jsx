@@ -231,20 +231,10 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
                               disabled={loadingDownload === attachment.id}
                               className="relative group rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-400 transition-all disabled:opacity-50 bg-gray-100"
                             >
-                              {thumbnails[attachment.id] ? (
-                                <img
-                                  src={thumbnails[attachment.id]}
-                                  alt={attachment.fileName}
-                                  className="w-full h-24 object-cover group-hover:scale-110 transition-transform"
-                                  onError={(e) => {
-                                    e.target.style.display = 'none';
-                                  }}
-                                />
-                              ) : (
-                                <div className="w-full h-24 flex items-center justify-center bg-gray-100">
-                                  <span className="text-2xl animate-pulse">🖼️</span>
-                                </div>
-                              )}
+                              <div className="w-full h-24 flex flex-col items-center justify-center p-2 text-center">
+                                <span className="text-3xl mb-1">🖼️</span>
+                                <p className="text-xs font-medium text-gray-700 truncate px-1 line-clamp-2">{attachment.fileName.substring(0, 20)}</p>
+                              </div>
                               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 flex items-center justify-center transition-all">
                                 {loadingDownload === attachment.id ? (
                                   <svg className="animate-spin h-6 w-6 text-white" viewBox="0 0 24 24">
