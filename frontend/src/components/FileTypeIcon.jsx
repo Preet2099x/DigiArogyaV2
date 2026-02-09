@@ -1,38 +1,27 @@
 // FileTypeIcon.jsx
-// Modern file type icon component using SVG (Heroicons style)
+// Simple, clean SVG icons for file types
 
 export default function FileTypeIcon({ type }) {
-  switch (type) {
-    case 'pdf':
-      return (
-        <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-          <rect width="24" height="24" rx="6" fill="#F3E8E8" />
-          <path d="M7 7h10v10H7V7z" fill="#E53935" />
-          <text x="12" y="16" textAnchor="middle" fontSize="10" fill="#fff">PDF</text>
-        </svg>
-      );
-    case 'image':
-      return (
-        <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-          <rect width="24" height="24" rx="6" fill="#E8F5E9" />
-          <circle cx="8" cy="10" r="2" fill="#43A047" />
-          <rect x="10" y="14" width="8" height="4" fill="#43A047" />
-        </svg>
-      );
-    case 'doc':
-      return (
-        <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-          <rect width="24" height="24" rx="6" fill="#E3F2FD" />
-          <rect x="7" y="7" width="10" height="10" fill="#1E88E5" />
-          <text x="12" y="16" textAnchor="middle" fontSize="10" fill="#fff">DOC</text>
-        </svg>
-      );
-    default:
-      return (
-        <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-          <rect width="24" height="24" rx="6" fill="#F5F5F5" />
-          <rect x="7" y="7" width="10" height="10" fill="#757575" />
-        </svg>
-      );
+  if (type === 'pdf') {
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-red-500 bg-red-50 p-1.5 rounded-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+    );
   }
+
+  if (type === 'image') {
+    return (
+      <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-emerald-500 bg-emerald-50 p-1.5 rounded-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    );
+  }
+
+  // Default doc
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-gray-500 bg-gray-50 p-1.5 rounded-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 2H7a2 2 0 00-2 2v15a2 2 0 002 2z" />
+    </svg>
+  );
 }
