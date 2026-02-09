@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import FileTypeIcon from './FileTypeIcon';
+import './attachment-list.css';
 import { fileApi } from '../services/api';
 
 const RecordDetailModal = ({ record, isOpen, onClose }) => {
@@ -6,7 +8,6 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
   const [loadingAttachments, setLoadingAttachments] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(null);
   const [previewFile, setPreviewFile] = useState(null);
-  // Removed thumbnail state
 
   useEffect(() => {
     if (isOpen && record?.id) {
@@ -20,7 +21,6 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
       const data = await fileApi.getRecordAttachments(record.id);
       setAttachments(data || []);
       
-      // No thumbnail loading
     } catch (err) {
       console.error('Failed to load attachments:', err);
       setAttachments([]);
@@ -209,14 +209,18 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
                   {attachments.some(a => a.fileType?.startsWith('image/')) && (
                     <div>
                       <p className="text-xs font-medium text-gray-600 mb-2">Images</p>
-                      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                      <ul className="attachment-list">
                         {attachments.map((attachment) => (
                           attachment.fileType?.startsWith('image/') && (
-                            <li key={attachment.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                              <span style={{ fontSize: 24 }}>🖼️</span>
-                              <span style={{ marginLeft: 8, fontSize: 16, cursor: 'pointer', textDecoration: 'underline' }} onClick={() => handleViewImage(attachment)}>
-                                {attachment.fileName}
-                              </span>
+                            <li key={attachment.id} className="attachment-item">
+                              <FileTypeIcon type="image" />
+                              <div className="file-info">
+                                <span className="filename" onClick={() => handleViewImage(attachment)}>{attachment.fileName}</span>
+                                <span className="meta">{attachment.fileSize ? formatFileSize(attachment.fileSize) : ''}</span>
+                              </div>
+                              <button className="action-btn" onClick={() => handleViewImage(attachment)} title="Preview">
+                                👁️
+                              </button>
                             </li>
                           )
                         ))}
@@ -228,14 +232,18 @@ const RecordDetailModal = ({ record, isOpen, onClose }) => {
                   {attachments.some(a => a.fileType === 'application/pdf') && (
                     <div>
                       <p className="text-xs font-medium text-gray-600 mb-2">PDFs</p>
-                      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                      <ul className="attachment-list">
                         {attachments.map((attachment) => (
                           attachment.fileType === 'application/pdf' && (
-                            <li key={attachment.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                              <span style={{ fontSize: 24 }}>📄</span>
-                              <span style={{ marginLeft: 8, fontSize: 16, cursor: 'pointer', textDecoration: 'underline' }} onClick={() => handleDownload(attachment)}>
-                                {attachment.fileName}
-                              </span>
+                            <li key={attachment.id} className="attachment-item">
+                              <FileTypeIcon type="pdf" />
+                              <div className="file-info">
+                                <span className="filename" onClick={() => handleDownload(attachment)}>{attachment.fileName}</span>
+                                <span className="meta">{attachment.fileSize ? formatFileSize(attachment.fileSize) : ''}</span>
+                              </div>
+                              <button className="action-btn" onClick={() => handleDownload(attachment)} title="Download">
+                                ⬇️
+                              </button>
                             </li>
                           )
                         ))}
